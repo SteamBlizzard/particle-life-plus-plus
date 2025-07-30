@@ -1,0 +1,5 @@
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
+#define WINDOW_WIDTH 1080
+#define WINDOW_HEIGHT 1080
+#endif
