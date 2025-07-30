@@ -2,7 +2,6 @@
 #define RENDERER_H
 
 #include "shader.h"
-#include "texture.h"
 
 class Renderer
 {
@@ -15,6 +14,8 @@ class Renderer
       const glm::vec2 size = glm::vec2(5.0f, 5.0f),
       float rotation = 0.0f,
       const glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    
+    Shader &getShader() { return shader; }
   
   private:
     Shader shader;

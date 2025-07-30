@@ -1,20 +1,23 @@
 #ifndef PHYSICS_H
-#define PHYSICS_H
+#define PHYSICS_ENGINE_H
 
-#include <particle.h>
 #include <glm/glm.hpp>
+#include <vector>
 
-class Physics
+#include "particle.h"
+
+class PhysicsEngine
 {
   public:
-    Physics() = default;
-    ~Physics() = default;
+    PhysicsEngine() = default;
+    ~PhysicsEngine() = default;
 
-    // Function to update the physics state
     void update(float deltaTime);
-
-    // Function to add a particle to the simulation
     void addParticle(const Particle &particle);
+    std::vector<Particle> getParticles() const
+    {
+        return particles;
+    }
     
   private:
     void applyForces(Particle &particle, const glm::vec2 &force, float deltaTime);

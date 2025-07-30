@@ -7,7 +7,9 @@ LDFLAGS := -Llib -lglfw3 -lopengl32 -lgdi32 -luser32 -lkernel32 -lshell32
 SRC := src/main.cpp \
        src/shader.cpp \
        src/resource_manager.cpp \
-       src/texture.cpp \
+       src/renderer.cpp \
+       src/physics_engine.cpp \
+       src/simulator.cpp \
        include/imgui/imgui.cpp \
        include/imgui/imgui_draw.cpp \
        include/imgui/imgui_tables.cpp \

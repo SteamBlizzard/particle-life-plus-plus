@@ -11,13 +11,13 @@ class Particle
     glm::vec2 velocity; // x, y velocity components
 
     // Constructor to initialize particle properties
-    Particle(int particleType, float x, float y, float vx, float vy)
+    Particle(int particleType, glm::vec2 pos, glm::vec2 vel)
         : type(particleType)
     {
-        position.x = x;
-        position.y = y;
-        velocity.x = vx;
-        velocity.y = vy;
+        position.x = pos.x;
+        position.y = pos.y;
+        velocity.x = vel.x;
+        velocity.y = vel.y;
     }
 };
 
