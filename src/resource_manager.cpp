@@ -4,9 +4,6 @@
 #include <sstream>
 #include <fstream>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-
 // Instantiate static variables
 std::map<std::string, Shader>       ResourceManager::Shaders;
 
