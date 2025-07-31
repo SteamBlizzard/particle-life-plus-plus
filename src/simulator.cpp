@@ -1,8 +1,3 @@
-// ImGUI
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
-
 // GLAD
 #include <glad/glad.h>
 
@@ -17,27 +12,54 @@
 #include <cmath>
 
 // Project includes
+#include "clock.h"
 #include "constants.h"
-#include "shader.h"
-#include "resource_manager.h"
-#include "renderer.h"
 #include "particle.h"
-
+#include "renderer.h"
+#include "resource_manager.h"
+#include "shader.h"
 #include "simulator.h"
 
+
 Simulator::Simulator(unsigned int width, unsigned int height)
-    : width(width), keys(), height(height), state(SIMULATOR_STATE_IDLE)
+    : width(width), height(height), state(SIMULATOR_STATE_IDLE)
 {
     physicsEngine = PhysicsEngine();
 }
 
 Simulator::~Simulator()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-    glfwDestroyWindow(window);
+    overlay.Shutdown();
     glfwTerminate();
+}
+
+void Simulator::Start()
+{
+    if (state == SIMULATOR_STATE_IDLE)
+    {
+        state = SIMULATOR_STATE_RUNNING;
+        clock.Start();
+        std::cout << "Simulator started." << std::endl;
+    }
+    else
+    {
+        std::cerr << "Simulator is already running or not in a valid state to start." << std::endl;
+    }
+
+    while (!glfwWindowShouldClose(window))
+    {
+        // Calculate delta time
+        double deltaTime = clock.GetDeltaTime();
+
+        // Process input
+        ProcessInput(deltaTime);
+
+        // Update physics engine
+        Update(deltaTime);
+
+        // Render the scene
+        Render();
+    }
 }
 
 GLFWwindow *Simulator::Init()
@@ -47,10 +69,10 @@ GLFWwindow *Simulator::Init()
         std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
         return nullptr;
     }
-
-    initImGui(window);
-
+    overlay.Init(window);
     loadResources();
+    // Initialize the physics engine with a default particle (while testing)
+    physicsEngine.AddParticle(Particle(0, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
     return window;
 }
 
@@ -59,59 +81,63 @@ void Simulator::ProcessInput(float delta)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        physicsEngine.addParticle(Particle(0, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
-        std::cout << "Particle added at (100, 100) with zero velocity." << std::endl;
-    
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        physicsEngine.update(1.0f);
-        std::cout << "Physics engine updated." << std::endl;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-0.5f, 0.0f), delta);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.5f, 0.0f), delta);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -0.5f), delta);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 0.5f), delta);
+    }
 }
 
 void Simulator::Update(float delta)
 {
+    if (state == SIMULATOR_STATE_RUNNING)
+    {
+        Particle &particle = *physicsEngine.GetParticles()[0];
+        physicsEngine.Update(delta);
+    }
+    else
+    {
+        std::cerr << "Simulator is not in a running state." << std::endl;
+    }
 }
 
 void Simulator::Render()
 {
     Shader circleShader = ResourceManager::GetShader("circleShader");
-    // Calculate orthographic projection matrix
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.0f, -1.0f, 1.0f);
-    circleShader.SetMat4("projection", projection);
     Renderer circleRenderer(circleShader);
 
-    while (!glfwWindowShouldClose(window))
+    // Rendering
+    int display_w, display_h;
+    glfwGetFramebufferSize(window, &display_w, &display_h);
+    glViewport(0, 0, display_w, display_h);
+    glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    if (physicsEngine.GetParticles().empty())
     {
-        // Input
-        ProcessInput(0.0f);
-
-        // Rendering
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        if (physicsEngine.getParticles().empty())
-        {
-            std::cout << "No particles to render." << std::endl;
-        }
-        else {
-            circleRenderer.getShader().SetVec2f("u_resolution", display_w, display_h);
-            circleRenderer.render(physicsEngine.getParticles().front().position, glm::vec2(0.25f, 0.25f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        }
-        // ImGui rendering
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-        ImGui::ShowDemoWindow();
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        // Call & Swap
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        std::cout << "No particles to render." << std::endl;
     }
+    else {
+        circleRenderer.getShader().SetVec2f("u_resolution", display_w, display_h);
+        circleRenderer.render(physicsEngine.GetParticles()[0]->position, glm::vec2(0.25f, 0.25f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    }
+    
+    // ImGui
+    overlay.Render();
+
+    // Call & Swap
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
@@ -153,22 +179,9 @@ GLFWwindow *Simulator::initGLFW()
     return window;
 }
 
-int Simulator::initImGui(GLFWwindow *window)
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    (void)io;
-    ImGui::StyleColorsDark();
-
-    // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 130");
-
-    return 0;
-}
-
 void Simulator::loadResources()
 {
-    ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
+    Shader circleShader = ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.0f, -1.0f, 1.0f);
+    circleShader.SetMat4("projection", projection);
 }

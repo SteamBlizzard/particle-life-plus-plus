@@ -12,16 +12,18 @@ class PhysicsEngine
     PhysicsEngine() = default;
     ~PhysicsEngine() = default;
 
-    void update(float deltaTime);
-    void addParticle(const Particle &particle);
-    std::vector<Particle> getParticles() const
+    void Update(float deltaTime);
+    void AddParticle(const Particle &particle);
+    std::vector<Particle*> GetParticles() const
     {
         return particles;
     }
-    
-  private:
+  
+    // Private once the physics engine is fully implemented
+    // For now, we keep it public for testing purposes
+  // private:
     void applyForces(Particle &particle, const glm::vec2 &force, float deltaTime);
-    std::vector<Particle> particles; // List of particles in the simulation
+    std::vector<Particle*> particles; // List of particles in the simulation
 
     glm::vec2 calculateForces(const Particle &particle);
 };

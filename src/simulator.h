@@ -3,6 +3,8 @@
 
 #include <glfw/glfw3.h>
 #include "physics_engine.h"
+#include "overlay.h"
+#include "clock.h"
 
 enum SimulatorState
 {
@@ -16,14 +18,16 @@ class Simulator
 {
 public:
   SimulatorState state;
-  bool keys[1024];
   unsigned int width, height;
   GLFWwindow *window;
   PhysicsEngine physicsEngine;
+  Overlay overlay;
+  Clock clock;
 
   Simulator(unsigned int width, unsigned int height);
   ~Simulator();
   GLFWwindow *Init();
+  void Start();
   void ProcessInput(float delta);
   void Update(float delta);
   void Render();
