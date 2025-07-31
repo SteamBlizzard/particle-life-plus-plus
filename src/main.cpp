@@ -17,8 +17,8 @@ int main()
         return -1;
     }
 
-    simulator.Render();
-
+    simulator.Start();
+    
     simulator.~Simulator();
 
     return 0;
