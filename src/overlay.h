@@ -11,7 +11,6 @@ public:
 
     void Init(GLFWwindow *window);
     void Render();
-    void Shutdown();
 };
 
 #endif

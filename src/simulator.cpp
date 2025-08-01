@@ -29,7 +29,6 @@ Simulator::Simulator(unsigned int width, unsigned int height)
 
 Simulator::~Simulator()
 {
-    overlay.Shutdown();
     glfwTerminate();
 }
 
@@ -72,7 +71,7 @@ GLFWwindow *Simulator::Init()
     overlay.Init(window);
     loadResources();
     // Initialize the physics engine with a default particle (while testing)
-    physicsEngine.AddParticle(Particle(0, glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+    physicsEngine.AddParticle(Particle(0, glm::vec2(540.0f, 540.0f), glm::vec2(0.0f, 0.0f)));
     return window;
 }
 
@@ -82,19 +81,19 @@ void Simulator::ProcessInput(float delta)
         glfwSetWindowShouldClose(window, true);
     
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-0.5f, 0.0f), delta);
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.5f, 0.0f), delta);
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(400.0f, 0.0f), delta);
     }
 
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -0.5f), delta);
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 400.0f), delta);
     }
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 0.5f), delta);
+        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
     }
 }
 
@@ -102,7 +101,7 @@ void Simulator::Update(float delta)
 {
     if (state == SIMULATOR_STATE_RUNNING)
     {
-        Particle &particle = *physicsEngine.GetParticles()[0];
+        Particle *particle = physicsEngine.GetParticles()[0];
         physicsEngine.Update(delta);
     }
     else
@@ -129,7 +128,8 @@ void Simulator::Render()
     }
     else {
         circleRenderer.getShader().SetVec2f("u_resolution", display_w, display_h);
-        circleRenderer.render(physicsEngine.GetParticles()[0]->position, glm::vec2(0.25f, 0.25f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        Particle *particle = physicsEngine.GetParticles()[0];
+        circleRenderer.render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     }
     
     // ImGui
@@ -158,8 +158,7 @@ GLFWwindow *Simulator::initGLFW()
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSwapInterval(1);
-    
+    glfwSwapInterval(0);
 
     if (!window)
     {
@@ -182,6 +181,4 @@ GLFWwindow *Simulator::initGLFW()
 void Simulator::loadResources()
 {
     Shader circleShader = ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.0f, -1.0f, 1.0f);
-    circleShader.SetMat4("projection", projection);
 }

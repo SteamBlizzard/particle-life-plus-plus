@@ -1,9 +1,6 @@
 #version 330 core
 
 uniform vec4 color;
-uniform vec2 u_resolution;
-uniform mat4 model;
-uniform mat4 projection;
 
 // TODO: Works for circles, but not for ellipses.
 void main()
