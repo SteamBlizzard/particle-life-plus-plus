@@ -2,11 +2,12 @@
 #define RENDERER_H
 
 #include "shader.h"
+#include <glfw/glfw3.h>
 
 class Renderer
 {
   public:
-    Renderer(Shader &shader);
+    Renderer(GLFWwindow *window, Shader &shader);
     ~Renderer();
 
     void render(
@@ -19,6 +20,7 @@ class Renderer
   
   private:
     Shader shader;
+    GLFWwindow *window;
     unsigned int quadVAO;
     void initRenderData();
     

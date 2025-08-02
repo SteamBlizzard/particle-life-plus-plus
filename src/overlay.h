@@ -11,6 +11,15 @@ public:
 
     void Init(GLFWwindow *window);
     void Render();
+
+private:
+    bool mainMenuBarEnabled = true;
+    bool configurationMenuEnabled = true;
+    bool settingsMenuEnabled = false;
+
+    void ShowMainMenuBar();
+    void ShowConfigurationMenu();
+    void ShowSettingsMenu();
 };
 
 #endif

@@ -18,13 +18,12 @@ class Simulator
 {
 public:
   SimulatorState state;
-  unsigned int width, height;
   GLFWwindow *window;
   PhysicsEngine physicsEngine;
   Overlay overlay;
   Clock clock;
 
-  Simulator(unsigned int width, unsigned int height);
+  Simulator();
   ~Simulator();
   GLFWwindow *Init();
   void Start();

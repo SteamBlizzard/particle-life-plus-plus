@@ -8,7 +8,8 @@
 
 #include "constants.h"
 
-Renderer::Renderer(Shader &shader) : shader(shader)
+Renderer::Renderer(GLFWwindow *window, Shader &shader)
+    : window(window), shader(shader)
 {
     initRenderData();
 }
@@ -68,9 +69,11 @@ void Renderer::render(
     float rotation,
     const glm::vec4 color)
 {
+    int display_w, display_h;
+    glfwGetFramebufferSize(window, &display_w, &display_h);
     // Use the shader program
     shader.Use();
-    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT), 0.0f, -1.0f, 1.0f);
+    glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(display_w), static_cast<float>(display_h), 0.0f, -1.0f, 1.0f);
     shader.SetMat4("projection", projection);
 
     // Set the color uniform

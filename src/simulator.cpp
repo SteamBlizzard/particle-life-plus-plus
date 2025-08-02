@@ -21,8 +21,7 @@
 #include "simulator.h"
 
 
-Simulator::Simulator(unsigned int width, unsigned int height)
-    : width(width), height(height), state(SIMULATOR_STATE_IDLE)
+Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
 {
     physicsEngine = PhysicsEngine();
 }
@@ -113,7 +112,7 @@ void Simulator::Update(float delta)
 void Simulator::Render()
 {
     Shader circleShader = ResourceManager::GetShader("circleShader");
-    Renderer circleRenderer(circleShader);
+    Renderer circleRenderer(window, circleShader);
 
     // Rendering
     int display_w, display_h;
@@ -154,7 +153,7 @@ GLFWwindow *Simulator::initGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -173,7 +172,7 @@ GLFWwindow *Simulator::initGLFW()
         return nullptr;
     }
 
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
 
     return window;
 }
