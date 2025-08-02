@@ -18,8 +18,6 @@ int main()
     }
 
     simulator.Start();
-    
-    simulator.~Simulator();
 
     return 0;
 }
