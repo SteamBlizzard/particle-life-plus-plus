@@ -117,7 +117,7 @@ void Simulator::Render()
     // Rendering
     int display_w, display_h;
     glfwGetFramebufferSize(window, &display_w, &display_h);
-    glViewport(0, 0, display_w, display_h);
+    // glViewport(0, 0, display_w, display_h);
     glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -132,6 +132,7 @@ void Simulator::Render()
     }
     
     // ImGui
+    overlay.HandleInput();
     overlay.Render();
 
     // Call & Swap

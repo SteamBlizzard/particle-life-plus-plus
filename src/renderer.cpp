@@ -1,11 +1,10 @@
-#include "renderer.h"
-
+#include <glad/glad.h>
 #include <iostream>
-
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <GLFW/glfw3.h>
 
+#include "renderer.h"
 #include "constants.h"
 
 Renderer::Renderer(GLFWwindow *window, Shader &shader)

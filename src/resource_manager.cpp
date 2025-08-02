@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include "resource_manager.h"
 
 #include <iostream>
