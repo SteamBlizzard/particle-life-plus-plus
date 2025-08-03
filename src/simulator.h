@@ -37,5 +37,5 @@ private:
   int initImGui(GLFWwindow *window);
 };
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height);
+void framebufferSizeCallback(GLFWwindow *window, int width, int height);
 #endif

@@ -130,9 +130,9 @@ void Simulator::Render()
   }
   else
   {
-    circleRenderer.getShader().SetVec2f("u_resolution", display_w, display_h);
+    circleRenderer.GetShader().SetVec2f("u_resolution", display_w, display_h);
     Particle *particle = physicsEngine.GetParticles()[0];
-    circleRenderer.render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
   }
 
   // ImGui
@@ -144,7 +144,7 @@ void Simulator::Render()
   glfwPollEvents();
 }
 
-void framebuffer_size_callback(GLFWwindow *window, int width, int height)
+void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
   glViewport(0, 0, width, height);
 }
@@ -161,7 +161,7 @@ GLFWwindow *Simulator::initGLFW()
   GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
 
   glfwMakeContextCurrent(window);
-  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
   glfwSwapInterval(0);
 
   if (!window)

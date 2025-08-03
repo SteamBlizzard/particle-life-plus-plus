@@ -60,7 +60,7 @@ void Renderer::initRenderData()
   glBindVertexArray(0);
 }
 
-void Renderer::render(
+void Renderer::Render(
     const glm::vec2 position,
     const glm::vec2 size,
     float rotation,

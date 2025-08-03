@@ -10,13 +10,13 @@ public:
   Renderer(GLFWwindow *window, Shader &shader);
   ~Renderer();
 
-  void render(
+  void Render(
       const glm::vec2 position,
       const glm::vec2 size = glm::vec2(5.0f, 5.0f),
       float rotation = 0.0f,
       const glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
-  Shader &getShader() { return shader; }
+  Shader &GetShader() { return shader; }
 
 private:
   Shader shader;
