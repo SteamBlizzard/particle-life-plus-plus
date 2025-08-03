@@ -9,15 +9,15 @@
 
 int main()
 {
-    Simulator simulator;
-    
-    GLFWwindow *window = simulator.Init();
-    if (!window)
-    {
-        return -1;
-    }
+  Simulator simulator;
 
-    simulator.Start();
+  GLFWwindow *window = simulator.Init();
+  if (!window)
+  {
+    return -1;
+  }
 
-    return 0;
+  simulator.Start();
+
+  return 0;
 }

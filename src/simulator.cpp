@@ -21,164 +21,168 @@
 #include "simulator.h"
 #include "configurations.h"
 
-
 Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
 {
-    physicsEngine = PhysicsEngine();
+  physicsEngine = PhysicsEngine();
 }
 
 Simulator::~Simulator()
 {
-    glfwTerminate();
+  glfwTerminate();
 }
 
 void Simulator::Start()
 {
-    if (state == SIMULATOR_STATE_IDLE)
-    {
-        state = SIMULATOR_STATE_RUNNING;
-        clock.Start();
-        std::cout << "Simulator started." << std::endl;
-    }
-    else
-    {
-        std::cerr << "Simulator is already running or not in a valid state to start." << std::endl;
-    }
+  if (state == SIMULATOR_STATE_IDLE)
+  {
+    state = SIMULATOR_STATE_RUNNING;
+    clock.Start();
+    std::cout << "Simulator started." << std::endl;
+  }
+  else
+  {
+    std::cerr << "Simulator is already running or not in a valid state to start." << std::endl;
+  }
 
-    while (!glfwWindowShouldClose(window))
-    {
-        // Calculate delta time
-        double deltaTime = clock.GetDeltaTime();
+  while (!glfwWindowShouldClose(window))
+  {
+    // Calculate delta time
+    double deltaTime = clock.GetDeltaTime();
 
-        // Process input
-        ProcessInput(deltaTime);
+    // Process input
+    ProcessInput(deltaTime);
 
-        // Update physics engine
-        Update(deltaTime);
+    // Update physics engine
+    Update(deltaTime);
 
-        // Render the scene
-        Render();
-    }
+    // Render the scene
+    Render();
+  }
 }
 
 GLFWwindow *Simulator::Init()
 {
-    if (!(this->window = initGLFW()))
-    {
-        std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
-        return nullptr;
-    }
-    overlay.Init(window);
-    loadResources();
-    // Initialize the physics engine with a default particle (while testing)
-    physicsEngine.AddParticle(Particle(0, glm::vec2(540.0f, 540.0f), glm::vec2(0.0f, 0.0f)));
-    return window;
+  if (!(this->window = initGLFW()))
+  {
+    std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
+    return nullptr;
+  }
+  overlay.Init(window);
+  loadResources();
+  // Initialize the physics engine with a default particle (while testing)
+  physicsEngine.AddParticle(Particle(0, glm::vec2(540.0f, 540.0f), glm::vec2(0.0f, 0.0f)));
+  return window;
 }
 
 void Simulator::ProcessInput(float delta)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
-    }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(400.0f, 0.0f), delta);
-    }
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+  {
+    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
+  }
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 400.0f), delta);
-    }
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+  {
+    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(400.0f, 0.0f), delta);
+  }
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
-    }
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+  {
+    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 400.0f), delta);
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+  {
+    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
+  }
 }
 
 void Simulator::Update(float delta)
 {
-    if (state == SIMULATOR_STATE_RUNNING)
-    {
-        Particle *particle = physicsEngine.GetParticles()[0];
-        physicsEngine.Update(delta);
-    }
-    else
-    {
-        std::cerr << "Simulator is not in a running state." << std::endl;
-    }
+  if (state == SIMULATOR_STATE_RUNNING)
+  {
+    Particle *particle = physicsEngine.GetParticles()[0];
+    physicsEngine.Update(delta);
+  }
+  else
+  {
+    std::cerr << "Simulator is not in a running state." << std::endl;
+  }
 }
 
 void Simulator::Render()
 {
-    Shader circleShader = ResourceManager::GetShader("circleShader");
-    Renderer circleRenderer(window, circleShader);
+  Shader circleShader = ResourceManager::GetShader("circleShader");
+  Renderer circleRenderer(window, circleShader);
 
-    // Rendering
-    int display_w, display_h;
-    glfwGetFramebufferSize(window, &display_w, &display_h);
-    glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
-    glClear(GL_COLOR_BUFFER_BIT);
+  // Rendering
+  int display_w, display_h;
+  glfwGetFramebufferSize(window, &display_w, &display_h);
+  glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
+  glClear(GL_COLOR_BUFFER_BIT);
 
-    if (physicsEngine.GetParticles().empty())
-    {
-        std::cout << "No particles to render." << std::endl;
-    }
-    else {
-        circleRenderer.getShader().SetVec2f("u_resolution", display_w, display_h);
-        Particle *particle = physicsEngine.GetParticles()[0];
-        circleRenderer.render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    }
-    
-    // ImGui
-    overlay.HandleInput();
-    overlay.Render();
+  if (physicsEngine.GetParticles().empty())
+  {
+    std::cout << "No particles to render." << std::endl;
+  }
+  else
+  {
+    circleRenderer.getShader().SetVec2f("u_resolution", display_w, display_h);
+    Particle *particle = physicsEngine.GetParticles()[0];
+    circleRenderer.render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+  }
 
-    // Call & Swap
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+  // ImGui
+  overlay.HandleInput();
+  overlay.Render();
+
+  // Call & Swap
+  glfwSwapBuffers(window);
+  glfwPollEvents();
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
-    glViewport(0, 0, width, height);
+  glViewport(0, 0, width, height);
 }
 
 GLFWwindow *Simulator::initGLFW()
 {
-    if (!glfwInit())
-        return nullptr;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+  if (!glfwInit())
+    return nullptr;
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
 
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSwapInterval(0);
+  glfwMakeContextCurrent(window);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSwapInterval(0);
 
-    if (!window)
-    {
-        std::cout << "Failed to create GLFW window." << std::endl;
-        glfwTerminate();
-        return nullptr;
-    }
+  if (!window)
+  {
+    std::cout << "Failed to create GLFW window." << std::endl;
+    glfwTerminate();
+    return nullptr;
+  }
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD." << std::endl;
-        return nullptr;
-    }
+  if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+  {
+    std::cout << "Failed to initialize GLAD." << std::endl;
+    return nullptr;
+  }
 
-    glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
+  glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
 
-    return window;
+  return window;
 }
 
 void Simulator::loadResources()
 {
-    Shader circleShader = ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
+  Shader circleShader = ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
 }

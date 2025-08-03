@@ -6,23 +6,23 @@
 class Overlay
 {
 public:
-    Overlay();
-    ~Overlay();
+  Overlay();
+  ~Overlay();
 
-    void Init(GLFWwindow *window);
-    void Render();
-    void HandleInput();
+  void Init(GLFWwindow *window);
+  void Render();
+  void HandleInput();
 
 private:
-    GLFWwindow *window;
+  GLFWwindow *window;
 
-    bool mainMenuBarEnabled = true;
-    bool configurationMenuEnabled = true;
-    bool settingsMenuEnabled = false;
+  bool mainMenuBarEnabled = true;
+  bool configurationMenuEnabled = true;
+  bool settingsMenuEnabled = false;
 
-    void ShowMainMenuBar();
-    void ShowConfigurationMenu();
-    void ShowSettingsMenu();
+  void ShowMainMenuBar();
+  void ShowConfigurationMenu();
+  void ShowSettingsMenu();
 };
 
 #endif

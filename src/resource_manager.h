@@ -10,14 +10,14 @@
 class ResourceManager
 {
 public:
-    static std::map<std::string, Shader>    Shaders;
-    static Shader    LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name);
-    static Shader    GetShader(std::string name);
-    static void      Clear();
+  static std::map<std::string, Shader> Shaders;
+  static Shader LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name);
+  static Shader GetShader(std::string name);
+  static void Clear();
+
 private:
-    ResourceManager() { }
-    static Shader    loadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile = nullptr);
+  ResourceManager() {}
+  static Shader loadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile = nullptr);
 };
 
 #endif
-

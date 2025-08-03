@@ -4,7 +4,8 @@
 #include <vector>
 #include "constants.h"
 
-class Configurations {
+class Configurations
+{
 public:
   // Get a single value representing the force applied to one particle type from another
   static float GetForceValue(int typeIdActed, int typeIdActing);
