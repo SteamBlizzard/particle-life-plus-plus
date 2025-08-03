@@ -19,10 +19,10 @@
 #include "resource_manager.h"
 #include "shader.h"
 #include "simulator.h"
+#include "configurations.h"
 
 
-Simulator::Simulator(unsigned int width, unsigned int height)
-    : width(width), height(height), state(SIMULATOR_STATE_IDLE)
+Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
 {
     physicsEngine = PhysicsEngine();
 }
@@ -113,12 +113,11 @@ void Simulator::Update(float delta)
 void Simulator::Render()
 {
     Shader circleShader = ResourceManager::GetShader("circleShader");
-    Renderer circleRenderer(circleShader);
+    Renderer circleRenderer(window, circleShader);
 
     // Rendering
     int display_w, display_h;
     glfwGetFramebufferSize(window, &display_w, &display_h);
-    glViewport(0, 0, display_w, display_h);
     glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -133,6 +132,7 @@ void Simulator::Render()
     }
     
     // ImGui
+    overlay.HandleInput();
     overlay.Render();
 
     // Call & Swap
@@ -154,7 +154,7 @@ GLFWwindow *Simulator::initGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-    GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
 
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -173,7 +173,7 @@ GLFWwindow *Simulator::initGLFW()
         return nullptr;
     }
 
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
 
     return window;
 }

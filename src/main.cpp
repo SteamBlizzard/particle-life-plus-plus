@@ -9,7 +9,7 @@
 
 int main()
 {
-    Simulator simulator(WINDOW_WIDTH, WINDOW_HEIGHT);
+    Simulator simulator;
     
     GLFWwindow *window = simulator.Init();
     if (!window)

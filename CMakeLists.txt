@@ -45,11 +45,13 @@ set_target_properties(glfw PROPERTIES
 
 set(SOURCES
   src/clock.cpp
+  src/configurations.cpp
   src/main.cpp
   src/overlay.cpp
   src/physics_engine.cpp
   src/renderer.cpp
   src/resource_manager.cpp
+  src/settings.cpp
   src/shader.cpp
   src/simulator.cpp
 )
