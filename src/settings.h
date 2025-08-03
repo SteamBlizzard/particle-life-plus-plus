@@ -35,8 +35,7 @@ public:
   static int GetParticleTypeLimit();
   static float GetParticleSize();
   static std::vector<std::vector<float>> GetForceMatrix();
-  static float GetForceValue(int typeIdActed, int typeIdActing);
-  static float GetForceValues(int typeId);
+  
 
   static void SetResolution(GLFWwindow *window, std::pair<int ,int> resolution);
   static void setDisplayMode(GLFWwindow *window, std::string displayMode);
@@ -47,9 +46,6 @@ public:
 
 private:
   Settings() {}
-
-  // Represents "particle <x> feels a force of [x,y] from particle <y>"
-  static std::vector<std::vector<float>> forceMatrix;
 };
 
 #endif

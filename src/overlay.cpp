@@ -1,5 +1,6 @@
 #include "overlay.h"
 #include "settings.h"
+#include "configurations.h"
 
 // ImGUI
 #include <imgui/imgui.h>
@@ -9,6 +10,7 @@
 #include <format>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 Overlay::Overlay()
 {
@@ -43,7 +45,7 @@ void Overlay::Render()
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
-    // ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 
     if (mainMenuBarEnabled)         ShowMainMenuBar();
     if (configurationMenuEnabled)   ShowConfigurationMenu();
@@ -78,6 +80,11 @@ void Overlay::ShowConfigurationMenu()
     // Generate an adjacency matrix of particles
     if (ImGui::Begin("Configuration Menu"))
     {
+        ImGuiStyle &style = ImGui::GetStyle();
+        ImVec2 originalCellPadding = style.CellPadding;
+        ImVec2 originalFramePadding = style.FramePadding;
+        style.CellPadding = ImVec2(0, 0);
+        style.FramePadding = ImVec2(0, 0);
         ImGui::Text("Particle Life++ Configuration");
         ImGui::Separator();
 
@@ -85,10 +92,56 @@ void Overlay::ShowConfigurationMenu()
         static int particleCount = 1;
         ImGui::SliderInt("Particle Types", &particleCount, 1, 100);
 
-        ImGui::Separator();
-        ImGui::BeginTable("Configuration Options", particleCount);
-        ImGui::EndTable();
-        
+        static ImGuiTableFlags flags = !ImGuiTableFlags_BordersOuter
+                                        | ImGuiTableFlags_RowBg
+                                        | ImGuiTableFlags_ScrollX
+                                        | ImGuiTableFlags_NoPadOuterX
+                                        | ImGuiTableFlags_NoPadInnerX;
+
+        if (ImGui::BeginTable("Force Matrix", particleCount + 1, flags))
+        {
+            for (int i = 0; i < particleCount + 1; i++) {
+                ImGui::TableSetupColumn(NULL, ImGuiTableColumnFlags_WidthFixed, CONFIG_MATRIX_CELL_WIDTH);
+            }
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0,0,0,0));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0,0,0,0));
+            ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0,0,0,0));
+            ImGui::TableNextRow();
+            for (int i = 0; i < particleCount; i++) {
+                ImGui::TableSetColumnIndex(i + 1);
+                ImGui::TextUnformatted(std::to_string(i).c_str());
+            }
+            for (int row = 0; row < particleCount; row++)
+            {
+                ImGui::TableNextRow(ImGuiTableRowFlags_None, CONFIG_MATRIX_CELL_HEIGHT);
+                ImGui::TableSetColumnIndex(0);
+                ImGui::TextUnformatted(std::to_string(row).c_str());
+
+                std::vector<float> &forces = Configurations::GetForceValues(row);
+                
+                for (int column = 1; column < particleCount + 1; column++)
+                {
+                    ImGui::TableSetColumnIndex(column);
+                    ImGui::PushID((row * MAXIMUM_PARTICLE_TYPES) + column);
+                    float wHeight = ImGui::GetFontSize() + style.FramePadding.y * 2;
+                    float yOffset = (CONFIG_MATRIX_CELL_HEIGHT - wHeight) * 0.5f;
+                    if (yOffset > 0) {
+                        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yOffset);
+                    }
+                    ImGui::PushItemWidth(-FLT_MIN);
+                    ImGui::DragFloat("##force", &forces[column], 0.005f, -1.0f, 1.0f, "%.2f");
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, (int)(255 * forces[column])), std::max(0, (int)(255 * forces[column])), 0, 255));
+                    ImGui::PopItemWidth();
+                    ImGui::PopID();
+                }
+            }
+            ImGui::PopStyleColor(3);
+            ImGui::PopStyleVar();
+            ImGui::EndTable();
+        }
+        style.CellPadding = originalCellPadding;
+        style.FramePadding = originalFramePadding;
     }
     ImGui::End();
 }

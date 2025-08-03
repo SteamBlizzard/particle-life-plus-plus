@@ -19,6 +19,7 @@
 #include "resource_manager.h"
 #include "shader.h"
 #include "simulator.h"
+#include "configurations.h"
 
 
 Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
@@ -117,7 +118,6 @@ void Simulator::Render()
     // Rendering
     int display_w, display_h;
     glfwGetFramebufferSize(window, &display_w, &display_h);
-    // glViewport(0, 0, display_w, display_h);
     glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
 
