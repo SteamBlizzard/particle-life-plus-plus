@@ -80,11 +80,44 @@ GLFWwindow *Simulator::Init()
 
 void Simulator::ProcessInput(float delta)
 {
+  int displayWidth, displayHeight;
+  glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+
   if (ImGui::IsKeyPressed(ImGuiKey_Escape))
     glfwSetWindowShouldClose(window, true);
 
   if (ImGui::IsKeyPressed(ImGuiKey_Enter))
     state = state == SimulatorState::SIMULATOR_STATE_PAUSED ? state = SimulatorState::SIMULATOR_STATE_RUNNING : state = SimulatorState::SIMULATOR_STATE_PAUSED;
+
+  if (ImGui::IsKeyPressed(ImGuiKey_1))
+    physicsEngine.AddParticle(Particle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_2))
+    physicsEngine.AddParticle(Particle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+  
+  if (ImGui::IsKeyPressed(ImGuiKey_3))
+    physicsEngine.AddParticle(Particle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_4))
+    physicsEngine.AddParticle(Particle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_5))
+    physicsEngine.AddParticle(Particle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_6))
+    physicsEngine.AddParticle(Particle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_7))
+    physicsEngine.AddParticle(Particle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_8))
+    physicsEngine.AddParticle(Particle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_9))
+    physicsEngine.AddParticle(Particle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+
+  if (ImGui::IsKeyPressed(ImGuiKey_0))
+    physicsEngine.AddParticle(Particle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
 
   if (ImGui::IsKeyDown(ImGuiKey_A))
     physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
@@ -97,13 +130,6 @@ void Simulator::ProcessInput(float delta)
 
   if (ImGui::IsKeyDown(ImGuiKey_W))
     physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
-
-  if (ImGui::IsKeyPressed(ImGuiKey_Space))
-  {
-    int displayWidth, displayHeight;
-    glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
-    physicsEngine.AddParticle(Particle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2(std::rand() % 100, std::rand() % 100)));
-  }
 }
 
 void Simulator::Update(float delta)
@@ -138,7 +164,7 @@ void Simulator::Render()
   {
     circleRenderer.GetShader().SetVec2f("u_resolution", displayWidth, displayHeight);
     for (auto *particle : physicsEngine.GetParticles())
-      circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(Configurations::particleRadius), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+      circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(Configurations::particleRadius), 0.0f, Configurations::particleColors[particle->type]);
   }
 
   // ImGui

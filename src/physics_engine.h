@@ -28,7 +28,7 @@ public:
   // private:
   void applyForces(Particle &particle, const glm::vec2 &force, float deltaTime);
   std::vector<Particle *> particles; // List of particles in the simulation
-  glm::vec2 calculateForces(const Particle &particle);
+  glm::vec2 calculateForces(Particle &particle);
 
 private:
   std::atomic<int> remaining;

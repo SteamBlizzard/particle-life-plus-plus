@@ -3,11 +3,14 @@
 
 #include "physics_engine.h"
 #include "settings.h"
+#include "configurations.h"
 
 #include <iostream>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <sstream>
+#include <format>
 
 PhysicsEngine::PhysicsEngine()
     : threadPool(ThreadPool(std::thread::hardware_concurrency()))
@@ -57,13 +60,24 @@ void PhysicsEngine::Update(float deltaTime)
 
 void PhysicsEngine::applyForces(Particle &particle, const glm::vec2 &force, float deltaTime)
 {
-  particle.velocity += force * deltaTime;
+  particle.velocity += (force * deltaTime) - (particle.velocity * Configurations::friction * deltaTime);
 }
 
-glm::vec2 PhysicsEngine::calculateForces(const Particle &particle)
+glm::vec2 PhysicsEngine::calculateForces(Particle &particle)
 {
-  // Placeholder for force calculation logic
-  return glm::vec2(-20.0f, -20.0f);
+  std::vector<float> &forces = Configurations::GetForceValues(particle.type);
+  glm::vec2 finalForce = glm::vec2();
+
+  for (auto actor : particles)
+  {
+    if (actor == &particle) continue;
+    float force = forces[actor->type];
+    
+    glm::vec2 forceVector = normalize(actor->position - particle.position);
+    forceVector *= force * Configurations::forceMultiplier;
+    finalForce += forceVector;
+  }
+  return finalForce;
 }
 
 void PhysicsEngine::worker(int start, int end, float deltaTime)

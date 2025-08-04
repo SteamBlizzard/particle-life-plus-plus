@@ -129,11 +129,25 @@ void Overlay::ShowConfigurationMenu()
         ImGui::TableSetColumnIndex(0);
         ImGui::TextUnformatted(std::to_string(row).c_str());
 
+        if (ImGui::Button("*"))
+          ImGui::OpenPopup(std::format("ColorPicker##{}", row).c_str());
+
+        if (ImGui::BeginPopupModal(std::format("ColorPicker##{}", row).c_str())) {
+            ImGui::ColorPicker4(
+                std::format("Select color for particle type {}", row).c_str(),
+                glm::value_ptr(Configurations::particleColors[row]),
+                ImGuiWindowFlags_AlwaysAutoResize
+            );
+            if (ImGui::Button("Close"))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
+
         std::vector<float> &forces = Configurations::GetForceValues(row);
 
-        for (int column = 1; column < particleCount + 1; column++)
+        for (int column = 0; column < particleCount; column++)
         {
-          ImGui::TableSetColumnIndex(column);
+          ImGui::TableSetColumnIndex(column + 1);
           ImGui::PushID((row * MAXIMUM_PARTICLE_TYPES) + column);
           float wHeight = ImGui::GetFontSize() + style.FramePadding.y * 2;
           float yOffset = (CONFIG_MATRIX_CELL_HEIGHT - wHeight) * 0.5f;
@@ -162,6 +176,8 @@ void Overlay::ShowConfigurationMenu()
     ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.0f, 1.0f);
 
     ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
+
+    ImGui::DragFloat("Force Multiplier", &Configurations::forceMultiplier, 0.1f, 0.0f, 100.0f);
   }
   ImGui::End();
 }
