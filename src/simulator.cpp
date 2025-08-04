@@ -70,6 +70,7 @@ GLFWwindow *Simulator::Init()
     std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
     return nullptr;
   }
+  physicsEngine.Init();
   overlay.Init(window);
   loadResources();
   // Initialize the physics engine with a default particle (while testing)

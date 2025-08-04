@@ -9,10 +9,7 @@ class Configurations
 {
 public:
   // Get a single value representing the force applied to one particle type from another
-  static float GetForceValue(int typeIdActed, int typeIdActing);
-
-  // Get all forces applied to one particle type from all others
-  static std::vector<float> &GetForceValues(int typeIdActed);
+  static float &GetForceValue(int typeIdActed, int typeIdActing);
 
   // Particle type colors
   inline static std::vector<glm::vec4> particleColors = std::vector<glm::vec4>(MAXIMUM_PARTICLE_TYPES);
@@ -28,7 +25,8 @@ public:
 
 private:
   // Represents "particle <x> feels a force of [x,y] from particle <y>"
-  inline static std::vector<std::vector<float>> forceMatrix = std::vector<std::vector<float>>(MAXIMUM_PARTICLE_TYPES, std::vector<float>(MAXIMUM_PARTICLE_TYPES));
+  // index calculation = length * x + y
+  inline static std::vector<float> forceMatrix = std::vector<float>(MAXIMUM_PARTICLE_TYPES * MAXIMUM_PARTICLE_TYPES);
 };
 
 #endif

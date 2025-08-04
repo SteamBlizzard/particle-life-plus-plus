@@ -1,5 +1,7 @@
 #include <glad/glad.h>
 
+#include <GLFW/glfw3.h>
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -41,12 +43,44 @@ void Shader::compile(const char *vertexSource, const char *fragmentSource, const
   glDeleteShader(sFragment);
   if (geometrySource != nullptr)
     glDeleteShader(gShader);
+  
+  type = ShaderType::RENDER;
+}
+
+void Shader::compile(const char *computeSource)
+{
+  unsigned int sCompute;
+  sCompute = glCreateShader(GL_COMPUTE_SHADER);
+  glShaderSource(sCompute, 1, &computeSource, NULL);
+  glCompileShader(sCompute);
+  checkCompileErrors(sCompute, "COMPUTE");
+  this->ID = glCreateProgram();
+  glAttachShader(this->ID, sCompute);
+  glLinkProgram(this->ID);
+  checkCompileErrors(this->ID, "PROGRAM");
+  glDeleteShader(sCompute);
+
+  type = ShaderType::COMPUTE;
 }
 
 Shader &Shader::Use()
 {
   glUseProgram(this->ID);
   return *this;
+}
+
+// Only available for compute shaders
+void Shader::Dispatch(int groups)
+{
+  if (type == COMPUTE)
+  {
+    glDispatchCompute(groups, 1, 1);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  }
+  else
+  {
+    std::cerr << "ERROR::SHADER::NONCOMPUTE: Shader is not of type COMPUTE!" << std::endl;
+  }
 }
 
 void Shader::SetFloat(const char *name, float value, bool useShader)

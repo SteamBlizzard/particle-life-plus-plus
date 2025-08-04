@@ -8,6 +8,7 @@
 #include <condition_variable>
 
 #include "thread_pool.h"
+#include "shader.h"
 
 class PhysicsEngine
 {
@@ -15,6 +16,7 @@ public:
   PhysicsEngine();
   ~PhysicsEngine();
 
+  void Init();
   void Update(float deltaTime);
   void AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity);
   int GetParticleCount();
@@ -28,6 +30,8 @@ private:
   std::vector<glm::vec2> positions;
   std::vector<glm::vec2> velocities;
 
+  Shader computeShader;
+
   void applyForces(int particle, const glm::vec2 &force, float deltaTime);
   glm::vec2 calculateForces(int particle);
 
@@ -35,6 +39,8 @@ private:
   std::mutex mut;
   std::condition_variable condition;
   ThreadPool threadPool;
+
+  unsigned int positionSSBO, velocitySSBO, typeSSBO;
 
   void worker(int offset, int step, float deltaTime);
 };

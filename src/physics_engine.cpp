@@ -1,9 +1,12 @@
+#include <glad/glad.h>
+
 #include <thread>
 #include <chrono>
 
 #include "physics_engine.h"
 #include "settings.h"
 #include "configurations.h"
+#include "resource_manager.h"
 
 #include <iostream>
 #include <thread>
@@ -19,6 +22,11 @@ PhysicsEngine::PhysicsEngine()
 
 PhysicsEngine::~PhysicsEngine()
 {
+}
+
+void PhysicsEngine::Init()
+{
+  computeShader = ResourceManager::LoadShader("shaders/particles.compute", "Particles");
 }
 
 void PhysicsEngine::AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity)
@@ -56,8 +64,35 @@ void PhysicsEngine::Update(float deltaTime)
 
   for (int i = 0; i < particleCount; i++)
   {
-    positions[i] += velocities[i] * deltaTime; // Update position based on velocity
+    positions[i] += velocities[i] * deltaTime;
   }
+
+  // // Positions
+  // glGenBuffers(1, &positionSSBO);
+  // glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionSSBO);
+  // glBufferData(GL_SHADER_STORAGE_BUFFER, positions.size() * sizeof(glm::vec2), positions.data(), GL_DYNAMIC_COPY);
+  // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionSSBO);
+
+  // // Velocities
+  // glGenBuffers(1, &velocitySSBO);
+  // glBindBuffer(GL_SHADER_STORAGE_BUFFER, velocitySSBO);
+  // glBufferData(GL_SHADER_STORAGE_BUFFER, velocities.size() * sizeof(glm::vec2), velocities.data(), GL_DYNAMIC_COPY);
+  // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, velocitySSBO);
+
+  // // Types
+  // glGenBuffers(1, &typeSSBO);
+  // glBindBuffer(GL_SHADER_STORAGE_BUFFER, typeSSBO);
+  // glBufferData(GL_SHADER_STORAGE_BUFFER, typeIds.size() * sizeof(int), typeIds.data(), GL_DYNAMIC_COPY);
+  // glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, typeSSBO);
+
+  // computeShader.Use();
+  // computeShader.SetFloat("delta", deltaTime);
+  // computeShader.SetInteger("particleCount", particleCount);
+  // computeShader.SetFloat("friction", Configurations::friction);
+  // computeShader.SetFloat("forceMultiplier", Configurations::forceMultiplier);
+  // computeShader.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
+
+  // computeShader.Dispatch((particleCount + 255) / 256);
 }
 
 void PhysicsEngine::applyForces(int particle, const glm::vec2 &force, float deltaTime)
@@ -68,16 +103,16 @@ void PhysicsEngine::applyForces(int particle, const glm::vec2 &force, float delt
 
 glm::vec2 PhysicsEngine::calculateForces(int particle)
 {
-  std::vector<float> &forces = Configurations::GetForceValues(typeIds[particle]);
   glm::vec2 finalForce = glm::vec2();
 
   glm::vec2 particlePosition = positions[particle];
 
   for (int i = 0; i < particleCount; i++)
   {
-    if (i == particle) continue;
-    float force = forces[typeIds[i]];
-    
+    if (i == particle)
+      continue;
+    float force = Configurations::GetForceValue(typeIds[particle], typeIds[i]);
+
     glm::vec2 forceVector = normalize(positions[i] - particlePosition);
     forceVector *= force * Configurations::forceMultiplier;
     finalForce += forceVector;

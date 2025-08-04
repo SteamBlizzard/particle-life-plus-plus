@@ -14,6 +14,12 @@ Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderF
   return Shaders[name];
 }
 
+Shader ResourceManager::LoadShader(const char *cShaderFile, std::string name)
+{
+  Shaders[name] = loadShaderFromFile(cShaderFile);
+  return Shaders[name];
+}
+
 Shader ResourceManager::GetShader(std::string name)
 {
   return Shaders[name];
@@ -67,5 +73,26 @@ Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *
   // 2. now create shader object from source code
   Shader shader;
   shader.compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
+  return shader;
+}
+
+Shader ResourceManager::loadShaderFromFile(const char *cShaderFile)
+{
+  std::string computeCode;
+  try
+  {
+    std::ifstream computeShaderFile(cShaderFile);
+    std::stringstream cShaderStream;
+    cShaderStream << computeShaderFile.rdbuf();
+    computeShaderFile.close();
+    computeCode = cShaderStream.str();
+  }
+  catch (std::exception e)
+  {
+    std::cout << "ERROR::SHADER: Failed to read shader files" << std::endl;
+  }
+  const char *cShaderCode = computeCode.c_str();
+  Shader shader;
+  shader.compile(cShaderCode);
   return shader;
 }

@@ -147,8 +147,6 @@ void Overlay::ShowConfigurationMenu()
         // glm::vec4 color = Configurations::particleColors[row];
         // ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(color.r, color.g, color.b, color.a));
 
-        std::vector<float> &forces = Configurations::GetForceValues(row);
-
         for (int column = 0; column < particleCount; column++)
         {
           ImGui::TableSetColumnIndex(column + 1);
@@ -160,8 +158,9 @@ void Overlay::ShowConfigurationMenu()
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yOffset);
           }
           ImGui::PushItemWidth(-FLT_MIN);
-          ImGui::DragFloat("##force", &forces[column], 0.005f, -1.0f, 1.0f, "%.2f");
-          ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, (int)(255 * forces[column])), std::max(0, (int)(255 * forces[column])), 0, 255));
+          float &force = Configurations::GetForceValue(row, column);
+          ImGui::DragFloat("##force", &force, 0.005f, -1.0f, 1.0f, "%.2f");
+          ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, (int)(255 * force)), std::max(0, (int)(255 * force)), 0, 255));
           ImGui::PopItemWidth();
           ImGui::PopID();
         }
@@ -177,7 +176,7 @@ void Overlay::ShowConfigurationMenu()
     ImGui::Text("Friction Coefficient");
     ImGui::Text("0.0 (Static)");
     ImGui::SameLine();
-    ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.0f, 1.0f);
+    ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.005f, 0.0f, 1.0f);
 
     ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
 
