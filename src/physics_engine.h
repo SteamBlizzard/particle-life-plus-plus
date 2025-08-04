@@ -7,7 +7,6 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "particle.h"
 #include "thread_pool.h"
 
 class PhysicsEngine
@@ -17,20 +16,21 @@ public:
   ~PhysicsEngine();
 
   void Update(float deltaTime);
-  void AddParticle(const Particle &particle);
-  std::vector<Particle *> GetParticles() const
-  {
-    return particles;
-  }
-
-  // Private once the physics engine is fully implemented
-  // For now, we keep it public for testing purposes
-  // private:
-  void applyForces(Particle &particle, const glm::vec2 &force, float deltaTime);
-  std::vector<Particle *> particles; // List of particles in the simulation
-  glm::vec2 calculateForces(Particle &particle);
+  void AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity);
+  int GetParticleCount();
+  int GetParticleType(int particle);
+  glm::vec2 GetParticlePosition(int particle);
+  glm::vec2 GetParticleVelocity(int particle);
 
 private:
+  int particleCount = 0;
+  std::vector<int> typeIds;
+  std::vector<glm::vec2> positions;
+  std::vector<glm::vec2> velocities;
+
+  void applyForces(int particle, const glm::vec2 &force, float deltaTime);
+  glm::vec2 calculateForces(int particle);
+
   std::atomic<int> remaining;
   std::mutex mut;
   std::condition_variable condition;

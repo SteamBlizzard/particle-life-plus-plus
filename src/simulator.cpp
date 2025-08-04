@@ -16,7 +16,6 @@
 // Project includes
 #include "clock.h"
 #include "constants.h"
-#include "particle.h"
 #include "renderer.h"
 #include "resource_manager.h"
 #include "shader.h"
@@ -74,7 +73,7 @@ GLFWwindow *Simulator::Init()
   overlay.Init(window);
   loadResources();
   // Initialize the physics engine with a default particle (while testing)
-  physicsEngine.AddParticle(Particle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f)));
+  physicsEngine.AddParticle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f));
   return window;
 }
 
@@ -90,53 +89,40 @@ void Simulator::ProcessInput(float delta)
     state = state == SimulatorState::SIMULATOR_STATE_PAUSED ? state = SimulatorState::SIMULATOR_STATE_RUNNING : state = SimulatorState::SIMULATOR_STATE_PAUSED;
 
   if (ImGui::IsKeyPressed(ImGuiKey_1))
-    physicsEngine.AddParticle(Particle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_2))
-    physicsEngine.AddParticle(Particle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
   
   if (ImGui::IsKeyPressed(ImGuiKey_3))
-    physicsEngine.AddParticle(Particle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_4))
-    physicsEngine.AddParticle(Particle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_5))
-    physicsEngine.AddParticle(Particle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_6))
-    physicsEngine.AddParticle(Particle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_7))
-    physicsEngine.AddParticle(Particle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_8))
-    physicsEngine.AddParticle(Particle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_9))
-    physicsEngine.AddParticle(Particle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_0))
-    physicsEngine.AddParticle(Particle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
-
-  if (ImGui::IsKeyDown(ImGuiKey_A))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
-
-  if (ImGui::IsKeyDown(ImGuiKey_D))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(400.0f, 0.0f), delta);
-
-  if (ImGui::IsKeyDown(ImGuiKey_S))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 400.0f), delta);
-
-  if (ImGui::IsKeyDown(ImGuiKey_W))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
+    physicsEngine.AddParticle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 }
 
 void Simulator::Update(float delta)
 {
   if (state == SIMULATOR_STATE_RUNNING)
   {
-    Particle *particle = physicsEngine.GetParticles()[0];
     physicsEngine.Update(delta);
   }
   else
@@ -156,15 +142,17 @@ void Simulator::Render()
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  if (physicsEngine.GetParticles().empty())
+  if (physicsEngine.GetParticleCount() == 0)
   {
     std::cout << "No particles to render." << std::endl;
   }
   else
   {
     circleRenderer.GetShader().SetVec2f("u_resolution", displayWidth, displayHeight);
-    for (auto *particle : physicsEngine.GetParticles())
-      circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(Configurations::particleRadius), 0.0f, Configurations::particleColors[particle->type]);
+    for (int i = 0; i < physicsEngine.GetParticleCount(); i++)
+    {
+      circleRenderer.Render(physicsEngine.GetParticlePosition(i), glm::vec2(Configurations::particleRadius), 0.0f, Configurations::particleColors[physicsEngine.GetParticleType(i)]);
+    }
   }
 
   // ImGui

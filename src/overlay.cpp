@@ -128,8 +128,8 @@ void Overlay::ShowConfigurationMenu()
         ImGui::TableNextRow(ImGuiTableRowFlags_None, CONFIG_MATRIX_CELL_HEIGHT);
         ImGui::TableSetColumnIndex(0);
         ImGui::TextUnformatted(std::to_string(row).c_str());
-
-        if (ImGui::Button("*"))
+        
+        if (ImGui::Button(std::format("Customize##{}", row).c_str()))
           ImGui::OpenPopup(std::format("ColorPicker##{}", row).c_str());
 
         if (ImGui::BeginPopupModal(std::format("ColorPicker##{}", row).c_str())) {
@@ -142,6 +142,10 @@ void Overlay::ShowConfigurationMenu()
                 ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
         }
+
+        // Doesn't work for some reason. TODO: Fix to make header cells colored.
+        // glm::vec4 color = Configurations::particleColors[row];
+        // ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(color.r, color.g, color.b, color.a));
 
         std::vector<float> &forces = Configurations::GetForceValues(row);
 
