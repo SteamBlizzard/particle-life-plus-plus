@@ -2,6 +2,7 @@
 #define CONFIGURATIONS_H
 
 #include <vector>
+#include <glm/glm.hpp>
 #include "constants.h"
 
 class Configurations
@@ -14,6 +15,12 @@ public:
 
   // Get all forces applied to one particle type from all others
   static std::vector<float> &GetForceValues(int typeIdActed);
+
+  // Friction coefficient (1.0f == None, 0.0f == Maximum)
+  inline static float friction = 0.7f;
+
+  // Sizes of the particles
+  inline static float particleRadius = 25.0f;
 
 private:
   // Represents "particle <x> feels a force of [x,y] from particle <y>"

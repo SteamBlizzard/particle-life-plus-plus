@@ -27,18 +27,19 @@ public:
       "Borderless",
       "Fullscreen"};
 
+  inline static int threadCount = 1;
+  inline static bool vsync = false;
+
   static std::pair<int, int> GetResolution(GLFWwindow *window);
   static std::string GetDisplayMode(GLFWwindow *window);
   static int GetParticleCountLimit();
   static int GetParticleTypeLimit();
-  static float GetParticleSize();
   static std::vector<std::vector<float>> GetForceMatrix();
 
   static void SetResolution(GLFWwindow *window, std::pair<int, int> resolution);
   static void setDisplayMode(GLFWwindow *window, std::string displayMode);
   static void SetParticleCountLimit();
   static void SetParticleTypeLimit();
-  static void SetParticleSize();
   static void SetForce(int typeIdActed, int typeIdActing, float force);
 
 private:

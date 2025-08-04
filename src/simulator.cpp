@@ -6,6 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <imgui/imgui.h>
+
 // C++ Standard Library
 #include <iostream>
 #include <string>
@@ -23,7 +25,6 @@
 
 Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
 {
-  physicsEngine = PhysicsEngine();
 }
 
 Simulator::~Simulator()
@@ -35,7 +36,7 @@ void Simulator::Start()
 {
   if (state == SIMULATOR_STATE_IDLE)
   {
-    state = SIMULATOR_STATE_RUNNING;
+    state = SIMULATOR_STATE_PAUSED;
     clock.Start();
     std::cout << "Simulator started." << std::endl;
   }
@@ -52,8 +53,11 @@ void Simulator::Start()
     // Process input
     ProcessInput(deltaTime);
 
-    // Update physics engine
-    Update(deltaTime);
+    if (state == SIMULATOR_STATE_RUNNING)
+    {
+      // Update physics engine
+      Update(deltaTime);
+    }
 
     // Render the scene
     Render();
@@ -70,33 +74,35 @@ GLFWwindow *Simulator::Init()
   overlay.Init(window);
   loadResources();
   // Initialize the physics engine with a default particle (while testing)
-  physicsEngine.AddParticle(Particle(0, glm::vec2(540.0f, 540.0f), glm::vec2(0.0f, 0.0f)));
+  physicsEngine.AddParticle(Particle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f)));
   return window;
 }
 
 void Simulator::ProcessInput(float delta)
 {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  if (ImGui::IsKeyPressed(ImGuiKey_Escape))
     glfwSetWindowShouldClose(window, true);
 
-  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-  {
+  if (ImGui::IsKeyPressed(ImGuiKey_Enter))
+    state = state == SimulatorState::SIMULATOR_STATE_PAUSED ? state = SimulatorState::SIMULATOR_STATE_RUNNING : state = SimulatorState::SIMULATOR_STATE_PAUSED;
+
+  if (ImGui::IsKeyDown(ImGuiKey_A))
     physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
-  }
 
-  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-  {
+  if (ImGui::IsKeyDown(ImGuiKey_D))
     physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(400.0f, 0.0f), delta);
-  }
 
-  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-  {
+  if (ImGui::IsKeyDown(ImGuiKey_S))
     physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 400.0f), delta);
-  }
 
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-  {
+  if (ImGui::IsKeyDown(ImGuiKey_W))
     physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
+
+  if (ImGui::IsKeyPressed(ImGuiKey_Space))
+  {
+    int displayWidth, displayHeight;
+    glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+    physicsEngine.AddParticle(Particle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2(std::rand() % 100, std::rand() % 100)));
   }
 }
 
@@ -119,8 +125,8 @@ void Simulator::Render()
   Renderer circleRenderer(window, circleShader);
 
   // Rendering
-  int display_w, display_h;
-  glfwGetFramebufferSize(window, &display_w, &display_h);
+  int displayWidth, displayHeight;
+  glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
 
@@ -130,9 +136,9 @@ void Simulator::Render()
   }
   else
   {
-    circleRenderer.GetShader().SetVec2f("u_resolution", display_w, display_h);
-    Particle *particle = physicsEngine.GetParticles()[0];
-    circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(100.0f, 100.0f), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    circleRenderer.GetShader().SetVec2f("u_resolution", displayWidth, displayHeight);
+    for (auto *particle : physicsEngine.GetParticles())
+      circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(Configurations::particleRadius), 0.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
   }
 
   // ImGui

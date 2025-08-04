@@ -2,6 +2,10 @@
 #include "settings.h"
 #include "configurations.h"
 
+// GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // ImGUI
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -11,6 +15,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 
 Overlay::Overlay()
 {
@@ -149,6 +154,14 @@ void Overlay::ShowConfigurationMenu()
     }
     style.CellPadding = originalCellPadding;
     style.FramePadding = originalFramePadding;
+
+    ImGui::Separator();
+    ImGui::Text("Friction Coefficient");
+    ImGui::Text("0.0 (Static)");
+    ImGui::SameLine();
+    ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.0f, 1.0f);
+
+    ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
   }
   ImGui::End();
 }
@@ -197,6 +210,21 @@ void Overlay::ShowSettingsMenu()
     if (ImGui::Button("Apply Display Mode") && Settings::GetDisplayMode(window) != Settings::DISPLAY_MODES[currentDisplayMode])
     {
       Settings::setDisplayMode(window, Settings::DISPLAY_MODES[currentDisplayMode]);
+    }
+
+    ImGui::SliderInt("Threads", &Settings::threadCount, 1, std::thread::hardware_concurrency());
+
+    static bool vsync;
+    ImGui::Checkbox("VSync Enabled", &vsync);
+    if (vsync && !Settings::vsync)
+    {
+      glfwSwapInterval(1);
+      Settings::vsync = true;
+    }
+    else if (!vsync && Settings::vsync)
+    {
+      glfwSwapInterval(0);
+      Settings::vsync = false;
     }
   }
   ImGui::End();

@@ -1,22 +1,16 @@
 #version 330 core
 
 uniform vec4 color;
+uniform vec2 center;
+uniform float radius;
 
-// TODO: Works for circles, but not for ellipses.
+uniform vec2 u_resolution;
+
 void main()
 {
-    // Follow transformation from vertex shader
-    // Calculate UV coordinates
-    // vec2 uv = gl_FragCoord.xy / u_resolution;
-    // uv = uv * 2.0 - 1.0; // Convert to range [-1, 1]
-    
-    // float comparison = (model * vec4(0.5)).x;
-
-    // float circle = step(distance(uv, vec2(comparison)), comparison);
-    // if (circle == 0.0)
-    // {
-    //     discard;
-    // }
-
-    gl_FragColor = color;
+    // Invert y
+    vec2 center_inverted = vec2(center.x, u_resolution.y - center.y);
+    float dist = distance(gl_FragCoord.xy, center_inverted);
+    if (dist > radius) discard;
+    gl_FragColor = vec4(color.rgb, 1);
 }
