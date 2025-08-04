@@ -3,14 +3,18 @@
 
 #include <glm/glm.hpp>
 #include <vector>
+#include <atomic>
+#include <mutex>
+#include <condition_variable>
 
 #include "particle.h"
+#include "thread_pool.h"
 
 class PhysicsEngine
 {
 public:
-  PhysicsEngine() = default;
-  ~PhysicsEngine() = default;
+  PhysicsEngine();
+  ~PhysicsEngine();
 
   void Update(float deltaTime);
   void AddParticle(const Particle &particle);
@@ -24,8 +28,15 @@ public:
   // private:
   void applyForces(Particle &particle, const glm::vec2 &force, float deltaTime);
   std::vector<Particle *> particles; // List of particles in the simulation
+  glm::vec2 calculateForces(Particle &particle);
 
-  glm::vec2 calculateForces(const Particle &particle);
+private:
+  std::atomic<int> remaining;
+  std::mutex mut;
+  std::condition_variable condition;
+  ThreadPool threadPool;
+
+  void worker(int offset, int step, float deltaTime);
 };
 
 #endif

@@ -2,6 +2,10 @@
 #include "settings.h"
 #include "configurations.h"
 
+// GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // ImGUI
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -11,6 +15,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 
 Overlay::Overlay()
 {
@@ -124,11 +129,25 @@ void Overlay::ShowConfigurationMenu()
         ImGui::TableSetColumnIndex(0);
         ImGui::TextUnformatted(std::to_string(row).c_str());
 
+        if (ImGui::Button("*"))
+          ImGui::OpenPopup(std::format("ColorPicker##{}", row).c_str());
+
+        if (ImGui::BeginPopupModal(std::format("ColorPicker##{}", row).c_str())) {
+            ImGui::ColorPicker4(
+                std::format("Select color for particle type {}", row).c_str(),
+                glm::value_ptr(Configurations::particleColors[row]),
+                ImGuiWindowFlags_AlwaysAutoResize
+            );
+            if (ImGui::Button("Close"))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
+
         std::vector<float> &forces = Configurations::GetForceValues(row);
 
-        for (int column = 1; column < particleCount + 1; column++)
+        for (int column = 0; column < particleCount; column++)
         {
-          ImGui::TableSetColumnIndex(column);
+          ImGui::TableSetColumnIndex(column + 1);
           ImGui::PushID((row * MAXIMUM_PARTICLE_TYPES) + column);
           float wHeight = ImGui::GetFontSize() + style.FramePadding.y * 2;
           float yOffset = (CONFIG_MATRIX_CELL_HEIGHT - wHeight) * 0.5f;
@@ -149,6 +168,16 @@ void Overlay::ShowConfigurationMenu()
     }
     style.CellPadding = originalCellPadding;
     style.FramePadding = originalFramePadding;
+
+    ImGui::Separator();
+    ImGui::Text("Friction Coefficient");
+    ImGui::Text("0.0 (Static)");
+    ImGui::SameLine();
+    ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.0f, 1.0f);
+
+    ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
+
+    ImGui::DragFloat("Force Multiplier", &Configurations::forceMultiplier, 0.1f, 0.0f, 100.0f);
   }
   ImGui::End();
 }
@@ -197,6 +226,21 @@ void Overlay::ShowSettingsMenu()
     if (ImGui::Button("Apply Display Mode") && Settings::GetDisplayMode(window) != Settings::DISPLAY_MODES[currentDisplayMode])
     {
       Settings::setDisplayMode(window, Settings::DISPLAY_MODES[currentDisplayMode]);
+    }
+
+    ImGui::SliderInt("Threads", &Settings::threadCount, 1, std::thread::hardware_concurrency());
+
+    static bool vsync;
+    ImGui::Checkbox("VSync Enabled", &vsync);
+    if (vsync && !Settings::vsync)
+    {
+      glfwSwapInterval(1);
+      Settings::vsync = true;
+    }
+    else if (!vsync && Settings::vsync)
+    {
+      glfwSwapInterval(0);
+      Settings::vsync = false;
     }
   }
   ImGui::End();

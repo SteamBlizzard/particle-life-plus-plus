@@ -23,9 +23,9 @@ void Renderer::initRenderData()
   unsigned int VBO;
   float vertices[] = {
       // x, y
-      0.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
+      -1.0f, 1.0f,
+      1.0f, -1.0f,
+      -1.0f, -1.0f,
       1.0f, 1.0f};
 
   unsigned int EBO;
@@ -66,11 +66,11 @@ void Renderer::Render(
     float rotation,
     const glm::vec4 color)
 {
-  int display_w, display_h;
-  glfwGetFramebufferSize(window, &display_w, &display_h);
+  int displayWidth, displayHeight;
+  glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
   // Use the shader program
   shader.Use();
-  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(display_w), static_cast<float>(display_h), 0.0f, -1.0f, 1.0f);
+  glm::mat4 projection = glm::ortho(0.0f, (float)displayWidth, (float)displayHeight, 0.0f, -1.0f, 1.0f);
   shader.SetMat4("projection", projection);
 
   // Set the color uniform
@@ -78,13 +78,14 @@ void Renderer::Render(
 
   // Calculate the model matrix
   glm::mat4 model = glm::mat4(1.0f);
-  model = glm::translate(model, glm::vec3(position, 0.0f));
-
-  // // Rotate and scale relative to center
-  model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+  // Move to position and make centered
+  model = glm::translate(model, glm::vec3(position.x, position.y, 0.0f));
   model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-  model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
   model = glm::scale(model, glm::vec3(size, 1.0f));
+
+    glm::mat4 center = projection * model;
+    shader.SetVec2f("center", position);
+    shader.SetFloat("radius", size.x);
 
   // Set the model matrix uniform
   shader.SetMat4("model", model);
