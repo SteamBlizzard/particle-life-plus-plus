@@ -126,11 +126,7 @@ void Simulator::Update(float delta)
 {
   if (state == SIMULATOR_STATE_RUNNING)
   {
-    // physicsEngine.Update(delta);
-    physicsEngine.UpdateNew(delta);
-    glm::vec2 *tmpPointer = physicsEngine.positionsInPtr;
-    physicsEngine.positionsInPtr = physicsEngine.positionsOutPtr;
-    physicsEngine.positionsOutPtr = tmpPointer;
+    physicsEngine.Update(delta);
   }
 }
 
@@ -141,14 +137,8 @@ void Simulator::Render()
   glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
+  particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
 
-  if (physicsEngine.particleCount > 0) {
-    if (physicsEngine.swappedPositionBuffers)
-      particleRenderer->Render(physicsEngine.positionsOutSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
-    else
-      particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
-
-  }
   // ImGui
   overlay.HandleInput();
   overlay.Render();
@@ -234,7 +224,7 @@ GLFWwindow *Simulator::initGLFW()
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION,
-                      0, nullptr, GL_FALSE); // Disable notifications
+                      0, nullptr, GL_FALSE);
   glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 
   return window;

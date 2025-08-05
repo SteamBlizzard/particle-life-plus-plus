@@ -17,10 +17,8 @@ public:
   ~PhysicsEngine();
 
   void Init();
-  void Update(float deltaTime);
   void UpdateColors();
-
-  void UpdateNew(float deltaTime);
+  void Update(float deltaTime);
   void AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity);
 
   int particleCount = 0;
@@ -35,8 +33,6 @@ public:
   glm::vec2* velocitiesPtr;
   int* typesPtr;
   float* forcesPtr;
-
-  bool swappedPositionBuffers = false;
 
 private:
   Shader computeShader;

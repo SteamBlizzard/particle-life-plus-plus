@@ -71,6 +71,8 @@ void PhysicsEngine::Init()
   forcesPtr = reinterpret_cast<float*>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, forceSize, accessFlags));
   if (!forcesPtr)
     std::cerr << "Failed to map forces buffer!\n";
+
+  memcpy(positionsOutPtr, positionsInPtr, sizeof(glm::vec2) * MAXIMUM_PARTICLES);
 }
 
 void PhysicsEngine::AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity)
@@ -96,24 +98,16 @@ void PhysicsEngine::UpdateColors()
   }
 }
 
-void PhysicsEngine::UpdateNew(float deltaTime)
+void PhysicsEngine::Update(float deltaTime)
 {
   if (particleCount > 0) {
-    if (swappedPositionBuffers)
-    {
-      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsOutSSBO);
-      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsInSSBO);
-    }
-    else
-    {
-      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsInSSBO);
-      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsOutSSBO);
-    }
+    computeShader.Use();
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsInSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsInSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, velocitySSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, typeSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, forcesSSBO);
 
-    computeShader.Use();
     computeShader.SetFloat("delta", deltaTime);
     computeShader.SetInteger("particleCount", particleCount);
     computeShader.SetFloat("friction", Configurations::friction);
@@ -121,9 +115,10 @@ void PhysicsEngine::UpdateNew(float deltaTime)
     computeShader.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 
     computeShader.Dispatch((particleCount + 255) / 256);
+    
+    std::swap(positionsInSSBO, positionsOutSSBO);
+    std::swap(positionsInPtr, positionsOutPtr);
   }
-
-  swappedPositionBuffers = !swappedPositionBuffers;
 }
 
 void PhysicsEngine::applyForces(int particle, const glm::vec2 &force, float deltaTime)
