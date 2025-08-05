@@ -22,7 +22,7 @@ layout(std430, binding = 4) buffer Forces {
 };
 
 uniform float delta;
-uniform float particleCount;
+uniform int particleCount;
 uniform float friction;
 uniform float forceMultiplier;
 uniform int maxTypeCount;

@@ -160,7 +160,7 @@ void Overlay::configurationMenu()
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yOffset);
           }
           ImGui::PushItemWidth(-FLT_MIN);
-          float &force = Configurations::GetForceValue(row, column);
+          float &force = physicsEngine->forcesPtr[row * MAXIMUM_PARTICLE_TYPES + column];
           ImGui::DragFloat("##force", &force, 0.005f, -1.0f, 1.0f, "%.2f");
           ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, (int)(255 * force)), std::max(0, (int)(255 * force)), 0, 255));
           ImGui::PopItemWidth();

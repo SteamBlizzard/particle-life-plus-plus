@@ -79,6 +79,7 @@ void PhysicsEngine::AddParticle(int typeId, glm::vec2 position, glm::vec2 veloci
     return;
 
   positionsInPtr[particleCount] = position;
+  positionsOutPtr[particleCount] = position;
   velocitiesPtr[particleCount] = velocity;
   typesPtr[particleCount] = typeId;
   colorPointers.push_back(&Configurations::particleColors[typeId]);
@@ -95,42 +96,19 @@ void PhysicsEngine::UpdateColors()
   }
 }
 
-void PhysicsEngine::Update(float deltaTime)
-{
-  std::vector<std::thread> threads;
-  remaining = Settings::threadCount;
-
-  int particlesPerThread = (particleCount + Settings::threadCount - 1) / Settings::threadCount;
-
-  for (int i = 0; i < Settings::threadCount; ++i)
-  {
-    int start = i * particlesPerThread;
-    int end = std::min((i + 1) * particlesPerThread, particleCount);
-    if (start >= end)
-    {
-      remaining--;
-      continue;
-    }
-
-    threadPool.Enqueue([start, end, deltaTime, this]()
-                       { worker(start, end, deltaTime); });
-  }
-
-  std::unique_lock<std::mutex> lock(mut);
-  condition.wait(lock, [&]
-                 { return remaining == 0; });
-
-  for (int i = 0; i < particleCount; i++)
-  {
-    positions[i] += velocities[i] * deltaTime;
-  }
-}
-
 void PhysicsEngine::UpdateNew(float deltaTime)
 {
   if (particleCount > 0) {
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsInSSBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsOutSSBO);
+    if (swappedPositionBuffers)
+    {
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsOutSSBO);
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsInSSBO);
+    }
+    else
+    {
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsInSSBO);
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsOutSSBO);
+    }
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, velocitySSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, typeSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, forcesSSBO);
@@ -144,6 +122,8 @@ void PhysicsEngine::UpdateNew(float deltaTime)
 
     computeShader.Dispatch((particleCount + 255) / 256);
   }
+
+  swappedPositionBuffers = !swappedPositionBuffers;
 }
 
 void PhysicsEngine::applyForces(int particle, const glm::vec2 &force, float deltaTime)

@@ -77,8 +77,6 @@ GLFWwindow *Simulator::Init()
   loadResources();
   Shader particleShader = ResourceManager::GetShader("particleShader");
   particleRenderer = new Renderer(window, particleShader);
-  // Initialize the physics engine with a default particle (while testing)
-  // physicsEngine.AddParticle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f));
   return window;
 }
 
@@ -145,7 +143,11 @@ void Simulator::Render()
   glClear(GL_COLOR_BUFFER_BIT);
 
   if (physicsEngine.particleCount > 0) {
-    particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
+    if (physicsEngine.swappedPositionBuffers)
+      particleRenderer->Render(physicsEngine.positionsOutSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
+    else
+      particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
+
   }
   // ImGui
   overlay.HandleInput();
