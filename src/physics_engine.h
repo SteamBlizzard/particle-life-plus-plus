@@ -1,4 +1,4 @@
-#ifndef PHYSICS_H
+#ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
 #include <glm/glm.hpp>
@@ -18,20 +18,29 @@ public:
 
   void Init();
   void Update(float deltaTime);
+  void UpdateColors();
   void AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity);
-  int GetParticleCount();
-  int GetParticleType(int particle);
-  glm::vec2 GetParticlePosition(int particle);
-  glm::vec2 GetParticleVelocity(int particle);
 
-private:
+  void UpdateNew(float deltaTime);
+  void AddParticleNew(int typeId, glm::vec2 position, glm::vec2 velocity);
+
   int particleCount = 0;
   std::vector<int> typeIds;
   std::vector<glm::vec2> positions;
   std::vector<glm::vec2> velocities;
+  std::vector<glm::vec4> colors;
 
+  unsigned int positionsInSSBO, positionsOutSSBO, velocitySSBO, typeSSBO, forcesSSBO, colorsSSBO;
+  void* positionsInPtr;
+  void* positionsOutPtr;
+  void* velocitiesPtr;
+  void* typesPtr;
+  void* forcesPtr;
+  void* colorsPtr;
+
+private:
   Shader computeShader;
-
+  std::vector<glm::vec4*> colorPointers;
   void applyForces(int particle, const glm::vec2 &force, float deltaTime);
   glm::vec2 calculateForces(int particle);
 
@@ -40,7 +49,7 @@ private:
   std::condition_variable condition;
   ThreadPool threadPool;
 
-  unsigned int positionSSBO, velocitySSBO, typeSSBO;
+  
 
   void worker(int offset, int step, float deltaTime);
 };

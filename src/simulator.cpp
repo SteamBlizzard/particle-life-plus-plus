@@ -1,6 +1,10 @@
 // GLAD
 #include <glad/glad.h>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -22,7 +26,8 @@
 #include "simulator.h"
 #include "configurations.h"
 
-Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
+Simulator::Simulator()
+    : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)
 {
 }
 
@@ -65,14 +70,16 @@ void Simulator::Start()
 
 GLFWwindow *Simulator::Init()
 {
-  if (!(this->window = initGLFW()))
+  if (!(window = initGLFW()))
   {
     std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
     return nullptr;
   }
-  physicsEngine.Init();
   overlay.Init(window);
+  physicsEngine.Init();
   loadResources();
+  Shader particleShader = ResourceManager::GetShader("particleShader");
+  particleRenderer = new Renderer(window, particleShader);
   // Initialize the physics engine with a default particle (while testing)
   physicsEngine.AddParticle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f));
   return window;
@@ -134,26 +141,19 @@ void Simulator::Update(float delta)
 
 void Simulator::Render()
 {
-  Shader circleShader = ResourceManager::GetShader("circleShader");
-  Renderer circleRenderer(window, circleShader);
-
   // Rendering
   int displayWidth, displayHeight;
   glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  if (physicsEngine.GetParticleCount() == 0)
+  if (physicsEngine.particleCount == 0)
   {
     std::cout << "No particles to render." << std::endl;
   }
   else
   {
-    circleRenderer.GetShader().SetVec2f("u_resolution", displayWidth, displayHeight);
-    for (int i = 0; i < physicsEngine.GetParticleCount(); i++)
-    {
-      circleRenderer.Render(physicsEngine.GetParticlePosition(i), glm::vec2(Configurations::particleRadius), 0.0f, Configurations::particleColors[physicsEngine.GetParticleType(i)]);
-    }
+    particleRenderer->Render(physicsEngine.positions, Configurations::particleRadius, physicsEngine.colors);
   }
 
   // ImGui
@@ -174,8 +174,8 @@ GLFWwindow *Simulator::initGLFW()
 {
   if (!glfwInit())
     return nullptr;
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -205,5 +205,5 @@ GLFWwindow *Simulator::initGLFW()
 
 void Simulator::loadResources()
 {
-  Shader circleShader = ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
+  Shader circleShader = ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader");
 }

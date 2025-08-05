@@ -12,7 +12,7 @@ public:
   static float &GetForceValue(int typeIdActed, int typeIdActing);
 
   // Particle type colors
-  inline static std::vector<glm::vec4> particleColors = std::vector<glm::vec4>(MAXIMUM_PARTICLE_TYPES);
+  inline static std::vector<glm::vec4> particleColors = std::vector<glm::vec4>(MAXIMUM_PARTICLE_TYPES, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 
   // Friction coefficient (1.0f == None, 0.0f == Maximum)
   inline static float friction = 0.7f;

@@ -9,7 +9,7 @@
 
 int main()
 {
-  Simulator simulator;
+  Simulator &simulator = Simulator::GetInstance();
 
   GLFWwindow *window = simulator.Init();
   if (!window)

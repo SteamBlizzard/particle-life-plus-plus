@@ -2,7 +2,9 @@
 #define RENDERER_H
 
 #include "shader.h"
+#include "physics_engine.h"
 #include <glfw/glfw3.h>
+#include <vector>
 
 class Renderer
 {
@@ -11,10 +13,9 @@ public:
   ~Renderer();
 
   void Render(
-      const glm::vec2 position,
-      const glm::vec2 size = glm::vec2(5.0f, 5.0f),
-      float rotation = 0.0f,
-      const glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+      const std::vector<glm::vec2> positions,
+      const float radius,
+      const std::vector<glm::vec4> colors);
 
   Shader &GetShader() { return shader; }
 
@@ -22,6 +23,8 @@ private:
   Shader shader;
   GLFWwindow *window;
   unsigned int quadVAO;
+  unsigned int positionInstanceVBO;
+  unsigned int colorInstanceVBO;
   void initRenderData();
 };
 
