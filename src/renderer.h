@@ -12,10 +12,7 @@ public:
   Renderer(GLFWwindow *window, Shader &shader);
   ~Renderer();
 
-  void Render(
-      const std::vector<glm::vec2> positions,
-      const float radius,
-      const std::vector<glm::vec4> colors);
+  void Render(const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);
 
   Shader &GetShader() { return shader; }
 

@@ -55,33 +55,29 @@ void Renderer::initRenderData()
   // (position 0, 2 floats per vertex, no normalization, stride of 2 floats, offset 0)
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
-  
-  glBindBuffer(GL_ARRAY_BUFFER, positionInstanceVBO);
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void *)0);
-  glEnableVertexAttribArray(1);
-  glVertexAttribDivisor(1, 1);
 
   glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
-  glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
-  glEnableVertexAttribArray(2);
-  glVertexAttribDivisor(2, 1);
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribDivisor(1, 1);
 
   // Unbind the VAO (rebind when rendering)
   glBindVertexArray(0);
 }
 
 void Renderer::Render(
-    const std::vector<glm::vec2> positions,
+    const unsigned int positions,
     const float radius,
-    const std::vector<glm::vec4> colors
+    const std::vector<glm::vec4> colors,
+    const int particleCount
   )
 {
-  glBindBuffer(GL_ARRAY_BUFFER, positionInstanceVBO);
-  glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec2), positions.data(), GL_DYNAMIC_DRAW);
-  glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
-  glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
   // Use the shader program
   shader.Use();
+
+  glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
+  glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positions);
 
   int displayWidth, displayHeight;
   glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
@@ -94,7 +90,7 @@ void Renderer::Render(
 
   // Bind the VAO and draw the quad
   glBindVertexArray(quadVAO);
-  glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, positions.size());
+  glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, particleCount);
 
   // Unbind the VAO
   glBindVertexArray(0);

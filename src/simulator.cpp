@@ -57,11 +57,8 @@ void Simulator::Start()
     // Process input
     ProcessInput(deltaTime);
 
-    if (state == SIMULATOR_STATE_RUNNING)
-    {
-      // Update physics engine
-      Update(deltaTime);
-    }
+    // Update physics engine
+    Update(deltaTime);
 
     // Render the scene
     Render();
@@ -81,7 +78,7 @@ GLFWwindow *Simulator::Init()
   Shader particleShader = ResourceManager::GetShader("particleShader");
   particleRenderer = new Renderer(window, particleShader);
   // Initialize the physics engine with a default particle (while testing)
-  physicsEngine.AddParticle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f));
+  // physicsEngine.AddParticle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f));
   return window;
 }
 
@@ -131,11 +128,11 @@ void Simulator::Update(float delta)
 {
   if (state == SIMULATOR_STATE_RUNNING)
   {
-    physicsEngine.Update(delta);
-  }
-  else
-  {
-    std::cerr << "Simulator is not in a running state." << std::endl;
+    // physicsEngine.Update(delta);
+    physicsEngine.UpdateNew(delta);
+    glm::vec2 *tmpPointer = physicsEngine.positionsInPtr;
+    physicsEngine.positionsInPtr = physicsEngine.positionsOutPtr;
+    physicsEngine.positionsOutPtr = tmpPointer;
   }
 }
 
@@ -147,15 +144,9 @@ void Simulator::Render()
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  if (physicsEngine.particleCount == 0)
-  {
-    std::cout << "No particles to render." << std::endl;
+  if (physicsEngine.particleCount > 0) {
+    particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
   }
-  else
-  {
-    particleRenderer->Render(physicsEngine.positions, Configurations::particleRadius, physicsEngine.colors);
-  }
-
   // ImGui
   overlay.HandleInput();
   overlay.Render();
@@ -168,6 +159,45 @@ void Simulator::Render()
 void framebufferSizeCallback(GLFWwindow *window, int width, int height)
 {
   glViewport(0, 0, width, height);
+}
+
+void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+                                     GLenum severity, GLsizei length,
+                                     const GLchar* message, const void* userParam)
+{
+    std::cerr << "OpenGL Debug Message [" << id << "]: " << message << "\n";
+
+    // Optional: Print extra context
+    std::cerr << "    Source: ";
+    switch (source) {
+        case GL_DEBUG_SOURCE_API:             std::cerr << "API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cerr << "Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cerr << "Shader Compiler"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cerr << "Third Party"; break;
+        case GL_DEBUG_SOURCE_APPLICATION:     std::cerr << "Application"; break;
+        case GL_DEBUG_SOURCE_OTHER:           std::cerr << "Other"; break;
+    }
+
+    std::cerr << "\n    Type: ";
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR:               std::cerr << "Error"; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cerr << "Deprecated Behavior"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cerr << "Undefined Behavior"; break;
+        case GL_DEBUG_TYPE_PORTABILITY:         std::cerr << "Portability"; break;
+        case GL_DEBUG_TYPE_PERFORMANCE:         std::cerr << "Performance"; break;
+        case GL_DEBUG_TYPE_OTHER:               std::cerr << "Other"; break;
+        case GL_DEBUG_TYPE_MARKER:              std::cerr << "Marker"; break;
+    }
+
+    std::cerr << "\n    Severity: ";
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH:         std::cerr << "High"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM:       std::cerr << "Medium"; break;
+        case GL_DEBUG_SEVERITY_LOW:          std::cerr << "Low"; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cerr << "Notification"; break;
+    }
+
+    std::cerr << "\n\n";
 }
 
 GLFWwindow *Simulator::initGLFW()
@@ -199,6 +229,11 @@ GLFWwindow *Simulator::initGLFW()
   }
 
   glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
+  glEnable(GL_DEBUG_OUTPUT);
+  glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+  glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION,
+                      0, nullptr, GL_FALSE); // Disable notifications
+  glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 
   return window;
 }
