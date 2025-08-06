@@ -1,6 +1,11 @@
 // GLAD
 #include <glad/glad.h>
 
+// ImGui
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -12,18 +17,20 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 // Project includes
 #include "clock.h"
 #include "constants.h"
-#include "particle.h"
 #include "renderer.h"
 #include "resource_manager.h"
 #include "shader.h"
-#include "simulator.h"
 #include "configurations.h"
 
-Simulator::Simulator() : state(SIMULATOR_STATE_IDLE)
+#include "simulator.h"
+
+Simulator::Simulator()
+    : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)
 {
 }
 
@@ -48,16 +55,13 @@ void Simulator::Start()
   while (!glfwWindowShouldClose(window))
   {
     // Calculate delta time
-    double deltaTime = clock.GetDeltaTime();
+    double deltaTime = std::min(clock.GetDeltaTime(), 0.05);
 
     // Process input
-    ProcessInput(deltaTime);
+    ProcessInput();
 
-    if (state == SIMULATOR_STATE_RUNNING)
-    {
-      // Update physics engine
-      Update(deltaTime);
-    }
+    // Update physics engine
+    Update(deltaTime);
 
     // Render the scene
     Render();
@@ -66,19 +70,20 @@ void Simulator::Start()
 
 GLFWwindow *Simulator::Init()
 {
-  if (!(this->window = initGLFW()))
+  if (!(window = initGLFW()))
   {
     std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
     return nullptr;
   }
   overlay.Init(window);
+  physicsEngine.Init();
   loadResources();
-  // Initialize the physics engine with a default particle (while testing)
-  physicsEngine.AddParticle(Particle(0, glm::vec2(STARTING_WINDOW_WIDTH / 2, STARTING_WINDOW_HEIGHT / 2), glm::vec2(0.0f, 0.0f)));
+  Shader particleShader = ResourceManager::GetShader("particleShader");
+  particleRenderer = new Renderer(window, particleShader);
   return window;
 }
 
-void Simulator::ProcessInput(float delta)
+void Simulator::ProcessInput()
 {
   int displayWidth, displayHeight;
   glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
@@ -90,83 +95,51 @@ void Simulator::ProcessInput(float delta)
     state = state == SimulatorState::SIMULATOR_STATE_PAUSED ? state = SimulatorState::SIMULATOR_STATE_RUNNING : state = SimulatorState::SIMULATOR_STATE_PAUSED;
 
   if (ImGui::IsKeyPressed(ImGuiKey_1))
-    physicsEngine.AddParticle(Particle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_2))
-    physicsEngine.AddParticle(Particle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
   
   if (ImGui::IsKeyPressed(ImGuiKey_3))
-    physicsEngine.AddParticle(Particle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_4))
-    physicsEngine.AddParticle(Particle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_5))
-    physicsEngine.AddParticle(Particle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_6))
-    physicsEngine.AddParticle(Particle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_7))
-    physicsEngine.AddParticle(Particle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_8))
-    physicsEngine.AddParticle(Particle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_9))
-    physicsEngine.AddParticle(Particle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
+    physicsEngine.AddParticle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_0))
-    physicsEngine.AddParticle(Particle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2()));
-
-  if (ImGui::IsKeyDown(ImGuiKey_A))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(-400.0f, 0.0f), delta);
-
-  if (ImGui::IsKeyDown(ImGuiKey_D))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(400.0f, 0.0f), delta);
-
-  if (ImGui::IsKeyDown(ImGuiKey_S))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, 400.0f), delta);
-
-  if (ImGui::IsKeyDown(ImGuiKey_W))
-    physicsEngine.applyForces(*physicsEngine.GetParticles()[0], glm::vec2(0.0f, -400.0f), delta);
+    physicsEngine.AddParticle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 }
 
 void Simulator::Update(float delta)
 {
   if (state == SIMULATOR_STATE_RUNNING)
-  {
-    Particle *particle = physicsEngine.GetParticles()[0];
-    physicsEngine.Update(delta);
-  }
-  else
-  {
-    std::cerr << "Simulator is not in a running state." << std::endl;
-  }
+    physicsEngine.Update(delta, window);
 }
 
 void Simulator::Render()
 {
-  Shader circleShader = ResourceManager::GetShader("circleShader");
-  Renderer circleRenderer(window, circleShader);
-
   // Rendering
   int displayWidth, displayHeight;
   glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
-
-  if (physicsEngine.GetParticles().empty())
-  {
-    std::cout << "No particles to render." << std::endl;
-  }
-  else
-  {
-    circleRenderer.GetShader().SetVec2f("u_resolution", displayWidth, displayHeight);
-    for (auto *particle : physicsEngine.GetParticles())
-      circleRenderer.Render(glm::vec2(particle->position.x, particle->position.y), glm::vec2(Configurations::particleRadius), 0.0f, Configurations::particleColors[particle->type]);
-  }
-
+  particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
+  physicsEngine.swapFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
   // ImGui
   overlay.HandleInput();
   overlay.Render();
@@ -181,12 +154,51 @@ void framebufferSizeCallback(GLFWwindow *window, int width, int height)
   glViewport(0, 0, width, height);
 }
 
+void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+                                     GLenum severity, GLsizei length,
+                                     const GLchar* message, const void* userParam)
+{
+    std::cerr << "OpenGL Debug Message [" << id << "]: " << message << "\n";
+
+    // Optional: Print extra context
+    std::cerr << "    Source: ";
+    switch (source) {
+        case GL_DEBUG_SOURCE_API:             std::cerr << "API"; break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cerr << "Window System"; break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cerr << "Shader Compiler"; break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cerr << "Third Party"; break;
+        case GL_DEBUG_SOURCE_APPLICATION:     std::cerr << "Application"; break;
+        case GL_DEBUG_SOURCE_OTHER:           std::cerr << "Other"; break;
+    }
+
+    std::cerr << "\n    Type: ";
+    switch (type) {
+        case GL_DEBUG_TYPE_ERROR:               std::cerr << "Error"; break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cerr << "Deprecated Behavior"; break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cerr << "Undefined Behavior"; break;
+        case GL_DEBUG_TYPE_PORTABILITY:         std::cerr << "Portability"; break;
+        case GL_DEBUG_TYPE_PERFORMANCE:         std::cerr << "Performance"; break;
+        case GL_DEBUG_TYPE_OTHER:               std::cerr << "Other"; break;
+        case GL_DEBUG_TYPE_MARKER:              std::cerr << "Marker"; break;
+    }
+
+    std::cerr << "\n    Severity: ";
+    switch (severity) {
+        case GL_DEBUG_SEVERITY_HIGH:         std::cerr << "High"; break;
+        case GL_DEBUG_SEVERITY_MEDIUM:       std::cerr << "Medium"; break;
+        case GL_DEBUG_SEVERITY_LOW:          std::cerr << "Low"; break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cerr << "Notification"; break;
+    }
+
+    std::cerr << "\n\n";
+}
+
 GLFWwindow *Simulator::initGLFW()
 {
   if (!glfwInit())
     return nullptr;
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
@@ -210,11 +222,15 @@ GLFWwindow *Simulator::initGLFW()
   }
 
   glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
+  glEnable(GL_DEBUG_OUTPUT);
+  glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+  glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+  glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 
   return window;
 }
 
 void Simulator::loadResources()
 {
-  Shader circleShader = ResourceManager::LoadShader("shaders/circle.vert", "shaders/circle.frag", nullptr, "circleShader");
+  Shader circleShader = ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader");
 }

@@ -1,12 +1,13 @@
 #ifndef OVERLAY_H
 #define OVERLAY_H
 
+#include "physics_engine.h"
 #include <GLFW/glfw3.h>
 
 class Overlay
 {
 public:
-  Overlay();
+  Overlay(PhysicsEngine * physicsEngine) : physicsEngine(physicsEngine) {}
   ~Overlay();
 
   void Init(GLFWwindow *window);
@@ -15,14 +16,15 @@ public:
 
 private:
   GLFWwindow *window;
-
+  PhysicsEngine *physicsEngine;
   bool mainMenuBarEnabled = true;
-  bool configurationMenuEnabled = true;
-  bool settingsMenuEnabled = false;
+  bool settingsAndConfigsMenuEnabled = false;
 
-  void ShowMainMenuBar();
-  void ShowConfigurationMenu();
-  void ShowSettingsMenu();
+  void showMainMenuBar();
+  void showSettingsAndConfigsMenu();
+
+  void configurationMenu();
+  void settingsMenu();
 };
 
 #endif

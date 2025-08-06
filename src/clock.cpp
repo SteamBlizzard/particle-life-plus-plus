@@ -15,7 +15,7 @@ void Clock::Start()
 {
   if (!running)
   {
-    startTime = glfwGetTime();
+    startTime, lastTime = glfwGetTime();
     running = true;
   }
 }

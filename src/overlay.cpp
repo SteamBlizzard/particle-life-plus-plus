@@ -15,11 +15,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <thread>
-
-Overlay::Overlay()
-{
-}
 
 Overlay::~Overlay()
 {
@@ -39,24 +34,22 @@ void Overlay::Init(GLFWwindow *window)
 
   // Setup Platform/Renderer bindings
   ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init("#version 130");
+  ImGui_ImplOpenGL3_Init("#version 430");
 
   this->window = window;
 }
 
 void Overlay::Render()
 {
-  ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
+  ImGui_ImplOpenGL3_NewFrame();
   ImGui::NewFrame();
   ImGui::ShowDemoWindow();
 
   if (mainMenuBarEnabled)
-    ShowMainMenuBar();
-  if (configurationMenuEnabled)
-    ShowConfigurationMenu();
-  if (settingsMenuEnabled)
-    ShowSettingsMenu();
+    showMainMenuBar();
+  if (settingsAndConfigsMenuEnabled)
+    showSettingsAndConfigsMenu();
   // Rendering
   ImGui::Render();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -65,33 +58,40 @@ void Overlay::Render()
 void Overlay::HandleInput()
 {
   if (ImGui::IsKeyPressed(ImGuiKey_Q) && ImGui::IsKeyDown(ImGuiMod_Ctrl))
-  {
-    settingsMenuEnabled = !settingsMenuEnabled;
-  }
-  if (ImGui::IsKeyPressed(ImGuiKey_W) && ImGui::IsKeyDown(ImGuiMod_Ctrl))
-  {
-    configurationMenuEnabled = !configurationMenuEnabled;
-  }
+    settingsAndConfigsMenuEnabled = !settingsAndConfigsMenuEnabled;
 }
 
-void Overlay::ShowMainMenuBar()
+void Overlay::showMainMenuBar()
 {
   if (ImGui::BeginMainMenuBar())
   {
     if (ImGui::BeginMenu("Windows"))
     {
-      ImGui::MenuItem("Settings", "CTRL+Q", &settingsMenuEnabled);
-      ImGui::MenuItem("Configurations", "CTRL+W", &configurationMenuEnabled);
+      ImGui::MenuItem("Settings & Configurations", "CTRL+Q", &settingsAndConfigsMenuEnabled);
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
   }
 }
 
-void Overlay::ShowConfigurationMenu()
+void Overlay::showSettingsAndConfigsMenu()
+{
+  if(ImGui::Begin("Settings & Configs"))
+  {
+    if (ImGui::BeginTabBar("Tabs"))
+    {
+      settingsMenu();
+      configurationMenu();
+      ImGui::EndTabBar();
+    }
+  }
+  ImGui::End();
+}
+
+void Overlay::configurationMenu()
 {
   // Generate an adjacency matrix of particles
-  if (ImGui::Begin("Configuration Menu"))
+  if (ImGui::BeginTabItem("Configurations"))
   {
     ImGuiStyle &style = ImGui::GetStyle();
     ImVec2 originalCellPadding = style.CellPadding;
@@ -101,7 +101,6 @@ void Overlay::ShowConfigurationMenu()
     ImGui::Text("Particle Life++ Configuration");
     ImGui::Separator();
 
-    // Example configuration options
     static int particleCount = 1;
     ImGui::SliderInt("Particle Types", &particleCount, 1, 100);
 
@@ -129,21 +128,25 @@ void Overlay::ShowConfigurationMenu()
         ImGui::TableSetColumnIndex(0);
         ImGui::TextUnformatted(std::to_string(row).c_str());
 
-        if (ImGui::Button("*"))
+        if (ImGui::Button(std::format("Customize##{}", row).c_str()))
           ImGui::OpenPopup(std::format("ColorPicker##{}", row).c_str());
 
-        if (ImGui::BeginPopupModal(std::format("ColorPicker##{}", row).c_str())) {
-            ImGui::ColorPicker4(
-                std::format("Select color for particle type {}", row).c_str(),
-                glm::value_ptr(Configurations::particleColors[row]),
-                ImGuiWindowFlags_AlwaysAutoResize
-            );
-            if (ImGui::Button("Close"))
-                ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
+        if (ImGui::BeginPopupModal(std::format("ColorPicker##{}", row).c_str()))
+        {
+          ImGui::ColorPicker4(
+              std::format("Select color for particle type {}", row).c_str(),
+              glm::value_ptr(Configurations::particleColors[row]),
+              ImGuiWindowFlags_AlwaysAutoResize);
+          if (ImGui::Button("Close")) {
+            physicsEngine->UpdateColors();
+            ImGui::CloseCurrentPopup();
+          }
+          ImGui::EndPopup();
         }
 
-        std::vector<float> &forces = Configurations::GetForceValues(row);
+        // Doesn't work for some reason. TODO: Fix to make header cells colored.
+        // glm::vec4 color = Configurations::particleColors[row];
+        // ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(color.r, color.g, color.b, color.a));
 
         for (int column = 0; column < particleCount; column++)
         {
@@ -156,8 +159,9 @@ void Overlay::ShowConfigurationMenu()
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yOffset);
           }
           ImGui::PushItemWidth(-FLT_MIN);
-          ImGui::DragFloat("##force", &forces[column], 0.005f, -1.0f, 1.0f, "%.2f");
-          ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, (int)(255 * forces[column])), std::max(0, (int)(255 * forces[column])), 0, 255));
+          float &force = physicsEngine->forcesPtr[row * MAXIMUM_PARTICLE_TYPES + column];
+          ImGui::DragFloat("##force", &force, 0.005f, -1.0f, 1.0f, "%.2f");
+          ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, (int)(255 * force)), std::max(0, (int)(255 * force)), 0, 255));
           ImGui::PopItemWidth();
           ImGui::PopID();
         }
@@ -173,20 +177,23 @@ void Overlay::ShowConfigurationMenu()
     ImGui::Text("Friction Coefficient");
     ImGui::Text("0.0 (Static)");
     ImGui::SameLine();
-    ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.0f, 1.0f);
+    ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.005f, 0.0f, 1.0f);
 
     ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
+    ImGui::DragFloat("Particle Maximum Affected Radius", &Configurations::gravityRadius, 10.0, 1.0f, 500.0f);
 
     ImGui::DragFloat("Force Multiplier", &Configurations::forceMultiplier, 0.1f, 0.0f, 100.0f);
+    ImGui::EndTabItem();
   }
-  ImGui::End();
+  
 }
 
-void Overlay::ShowSettingsMenu()
+void Overlay::settingsMenu()
 {
   static int currentResolution = 0;
-  if (ImGui::Begin("Settings"))
+  if (ImGui::BeginTabItem("Settings"))
   {
+    ImGui::Text(std::format("Particle Count: {}", physicsEngine->particleCount).c_str());
     std::pair<int, int> currentRes = Settings::RESOLUTIONS[currentResolution];
     if (ImGui::BeginCombo("Resolution", std::format("{}x{}", currentRes.first, currentRes.second).c_str()))
     {
@@ -228,8 +235,6 @@ void Overlay::ShowSettingsMenu()
       Settings::setDisplayMode(window, Settings::DISPLAY_MODES[currentDisplayMode]);
     }
 
-    ImGui::SliderInt("Threads", &Settings::threadCount, 1, std::thread::hardware_concurrency());
-
     static bool vsync;
     ImGui::Checkbox("VSync Enabled", &vsync);
     if (vsync && !Settings::vsync)
@@ -242,6 +247,7 @@ void Overlay::ShowSettingsMenu()
       glfwSwapInterval(0);
       Settings::vsync = false;
     }
+    ImGui::EndTabItem();
   }
-  ImGui::End();
+  
 }

@@ -37,6 +37,8 @@ void Renderer::initRenderData()
   glGenVertexArrays(1, &quadVAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
+  glGenBuffers(1, &positionInstanceVBO);
+  glGenBuffers(1, &colorInstanceVBO);
 
   // Bind VAO and set vertex attribute pointers
   glBindVertexArray(quadVAO);
@@ -52,48 +54,43 @@ void Renderer::initRenderData()
   // Define vertex attribute structure
   // (position 0, 2 floats per vertex, no normalization, stride of 2 floats, offset 0)
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
-
-  // Enable vertex attribute
   glEnableVertexAttribArray(0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
+  glEnableVertexAttribArray(1);
+  glVertexAttribDivisor(1, 1);
 
   // Unbind the VAO (rebind when rendering)
   glBindVertexArray(0);
 }
 
 void Renderer::Render(
-    const glm::vec2 position,
-    const glm::vec2 size,
-    float rotation,
-    const glm::vec4 color)
+    const unsigned int positions,
+    const float radius,
+    const std::vector<glm::vec4> colors,
+    const int particleCount
+  )
 {
-  int displayWidth, displayHeight;
-  glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
   // Use the shader program
   shader.Use();
+
+  glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
+  glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positions);
+
+  int displayWidth, displayHeight;
+  glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+  shader.SetVec2f("u_resolution", displayWidth, displayHeight);
+
   glm::mat4 projection = glm::ortho(0.0f, (float)displayWidth, (float)displayHeight, 0.0f, -1.0f, 1.0f);
   shader.SetMat4("projection", projection);
 
-  // Set the color uniform
-  shader.SetVec4f("color", color);
-
-  // Calculate the model matrix
-  glm::mat4 model = glm::mat4(1.0f);
-  // Move to position and make centered
-  model = glm::translate(model, glm::vec3(position.x, position.y, 0.0f));
-  model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-  model = glm::scale(model, glm::vec3(size, 1.0f));
-
-    glm::mat4 center = projection * model;
-    shader.SetVec2f("center", position);
-    shader.SetFloat("radius", size.x);
-
-  // Set the model matrix uniform
-  shader.SetMat4("model", model);
+  shader.SetFloat("radius", radius);
 
   // Bind the VAO and draw the quad
   glBindVertexArray(quadVAO);
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+  glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, particleCount);
   // Unbind the VAO
   glBindVertexArray(0);
 }

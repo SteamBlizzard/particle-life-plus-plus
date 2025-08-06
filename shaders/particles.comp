@@ -1,0 +1,72 @@
+#version 440 core
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) buffer PositionsIn {
+  vec2 positionsIn[];
+};
+
+layout(std430, binding = 1) buffer PositionsOut {
+  vec2 positionsOut[];
+};
+
+layout(std430, binding = 2) buffer Velocities {
+  vec2 velocities[];
+};
+
+layout(std430, binding = 3) buffer TypeIds {
+  int typeIds[];  
+};
+
+layout(std430, binding = 4) buffer Forces {
+  float forces[];
+};
+
+uniform float delta;
+uniform float particleRadius;
+uniform ivec2 display;
+uniform int particleCount;
+uniform float friction;
+uniform float gravityRadius;
+uniform float forceMultiplier;
+uniform int maxTypeCount;
+
+void main() {
+  uint id = gl_GlobalInvocationID.x;
+
+  if (id >= particleCount) return;
+
+  vec2 finalForce = vec2(0,0);
+
+  for (int i = 0; i < particleCount; i++) {
+    float dist = distance(positionsIn[i], positionsIn[id]);
+    if (dist == 0 || dist >= gravityRadius || i == id) continue;
+
+    float force = forces[typeIds[id] * maxTypeCount + typeIds[i]];
+    vec2 forceVector = normalize(positionsIn[i] - positionsIn[id]);
+    forceVector *= force * forceMultiplier * smoothstep(gravityRadius, gravityRadius / 100, dist);
+    finalForce += forceVector;
+  }
+
+  velocities[id] += finalForce * delta;
+  velocities[id] *= pow(friction, delta);
+  vec2 forcedPosition = positionsIn[id] + velocities[id] * delta;
+
+  float xBoundaryMax = display.x + particleRadius;
+  float xBoundaryMin = -particleRadius;
+  float yBoundaryMax = display.y + particleRadius;
+  float yBoundaryMin = -particleRadius;
+
+  if (forcedPosition.x > xBoundaryMax) {
+    forcedPosition.x = mod(forcedPosition.x, xBoundaryMax) + xBoundaryMin;
+  } else if (forcedPosition.x < xBoundaryMin) {
+    forcedPosition.x = xBoundaryMax - mod(-forcedPosition.x, xBoundaryMax) - xBoundaryMin;
+  }
+
+  if (forcedPosition.y > yBoundaryMax) {
+    forcedPosition.y = mod(forcedPosition.y, yBoundaryMax) + yBoundaryMin;
+  } else if (forcedPosition.y < yBoundaryMin) {
+    forcedPosition.y = yBoundaryMax - mod(-forcedPosition.y, yBoundaryMax) - yBoundaryMin;
+  }
+  
+  positionsOut[id] = forcedPosition;
+}
