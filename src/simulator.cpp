@@ -17,6 +17,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <algorithm>
 
 // Project includes
 #include "clock.h"
@@ -54,7 +55,7 @@ void Simulator::Start()
   while (!glfwWindowShouldClose(window))
   {
     // Calculate delta time
-    double deltaTime = clock.GetDeltaTime();
+    double deltaTime = std::min(clock.GetDeltaTime(), 0.05);
 
     // Process input
     ProcessInput(deltaTime);
