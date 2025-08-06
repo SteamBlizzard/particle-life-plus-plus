@@ -14,7 +14,7 @@ layout(std430, binding = 2) buffer Velocities {
 };
 
 layout(std430, binding = 3) buffer TypeIds {
-  int typeIds[];
+  int typeIds[];  
 };
 
 layout(std430, binding = 4) buffer Forces {
@@ -38,13 +38,15 @@ void main() {
   vec2 finalForce = vec2(0,0);
 
   for (int i = 0; i < particleCount; i++) {
-    if (distance(positionsIn[i], positionsIn[id]) > gravityRadius || i == id) continue;
+    float dist = distance(positionsIn[i], positionsIn[id]);
+    if (dist == 0 || dist >= gravityRadius || i == id) continue;
     float force = forces[typeIds[id] * maxTypeCount + typeIds[i]];
     vec2 forceVector = normalize(positionsIn[i] - positionsIn[id]);
-    forceVector *= force * forceMultiplier;
+    forceVector *= force * forceMultiplier * smoothstep(gravityRadius, gravityRadius / 100, dist);
     finalForce += forceVector;
   }
   velocities[id] += finalForce * delta;
+  velocities[id] *= pow(friction, delta);
   vec2 forcedPosition = positionsIn[id] + velocities[id] * delta;
 
   float xBoundaryMax = display.x + particleRadius;

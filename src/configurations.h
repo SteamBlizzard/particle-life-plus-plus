@@ -18,7 +18,7 @@ public:
   inline static float friction = 0.7f;
 
   // Sizes of the particles
-  inline static float particleRadius = 25.0f;
+  inline static float particleRadius = 5.0f;
 
   // Force multiplier
   inline static float forceMultiplier = 10.0f;

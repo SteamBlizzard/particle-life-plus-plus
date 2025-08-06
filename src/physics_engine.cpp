@@ -123,6 +123,12 @@ void PhysicsEngine::Update(float deltaTime, GLFWwindow *window)
     computeShader.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 
     computeShader.Dispatch((particleCount + 255) / 256);
+    for (int i = 0; i < particleCount; ++i) {
+      if (!std::isfinite(positionsOutPtr[i].x) || !std::isfinite(positionsOutPtr[i].y)) {
+        std::cerr << "Particle " << i << " has invalid position: "
+                  << positionsOutPtr[i].x << ", " << positionsOutPtr[i].y << std::endl;
+      }
+    }
     if (swapFence)
     {
       glClientWaitSync(swapFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);

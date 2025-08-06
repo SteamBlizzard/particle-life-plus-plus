@@ -181,7 +181,7 @@ void Overlay::configurationMenu()
     ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.005f, 0.0f, 1.0f);
 
     ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
-    ImGui::DragFloat("Particle Maximum Affected Radius", &Configurations::gravityRadius, 1.0, 1.0f, 500.0f);
+    ImGui::DragFloat("Particle Maximum Affected Radius", &Configurations::gravityRadius, 10.0, 1.0f, 500.0f);
 
     ImGui::DragFloat("Force Multiplier", &Configurations::forceMultiplier, 0.1f, 0.0f, 100.0f);
     ImGui::EndTabItem();

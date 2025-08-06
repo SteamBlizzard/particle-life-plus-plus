@@ -95,7 +95,8 @@ void Simulator::ProcessInput()
     state = state == SimulatorState::SIMULATOR_STATE_PAUSED ? state = SimulatorState::SIMULATOR_STATE_RUNNING : state = SimulatorState::SIMULATOR_STATE_PAUSED;
 
   if (ImGui::IsKeyPressed(ImGuiKey_1))
-    physicsEngine.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+    for (int i = 0; i < 100; i++)
+      physicsEngine.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
   if (ImGui::IsKeyPressed(ImGuiKey_2))
     physicsEngine.AddParticle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
@@ -128,9 +129,7 @@ void Simulator::ProcessInput()
 void Simulator::Update(float delta)
 {
   if (state == SIMULATOR_STATE_RUNNING)
-  {
     physicsEngine.Update(delta, window);
-  }
 }
 
 void Simulator::Render()
