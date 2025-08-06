@@ -40,11 +40,13 @@ void main() {
   for (int i = 0; i < particleCount; i++) {
     float dist = distance(positionsIn[i], positionsIn[id]);
     if (dist == 0 || dist >= gravityRadius || i == id) continue;
+
     float force = forces[typeIds[id] * maxTypeCount + typeIds[i]];
     vec2 forceVector = normalize(positionsIn[i] - positionsIn[id]);
     forceVector *= force * forceMultiplier * smoothstep(gravityRadius, gravityRadius / 100, dist);
     finalForce += forceVector;
   }
+
   velocities[id] += finalForce * delta;
   velocities[id] *= pow(friction, delta);
   vec2 forcedPosition = positionsIn[id] + velocities[id] * delta;
