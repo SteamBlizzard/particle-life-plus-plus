@@ -1,6 +1,7 @@
 // GLAD
 #include <glad/glad.h>
 
+// ImGui
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
@@ -23,8 +24,9 @@
 #include "renderer.h"
 #include "resource_manager.h"
 #include "shader.h"
-#include "simulator.h"
 #include "configurations.h"
+
+#include "simulator.h"
 
 Simulator::Simulator()
     : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)
@@ -138,7 +140,7 @@ void Simulator::Render()
   glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
   glClear(GL_COLOR_BUFFER_BIT);
   particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
-
+  physicsEngine.swapFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
   // ImGui
   overlay.HandleInput();
   overlay.Render();

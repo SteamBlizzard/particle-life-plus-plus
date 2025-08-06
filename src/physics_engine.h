@@ -1,6 +1,7 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>
 #include <atomic>
@@ -33,6 +34,7 @@ public:
   glm::vec2* velocitiesPtr;
   int* typesPtr;
   float* forcesPtr;
+  GLsync swapFence = nullptr;
 
 private:
   Shader computeShader;

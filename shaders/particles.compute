@@ -42,5 +42,5 @@ void main() {
     finalForce += forceVector;
   }
   velocities[id] += finalForce;
-  positionsOut[id] += velocities[id] * delta;
+  positionsOut[id] = positionsIn[id] + velocities[id] * delta;
 }

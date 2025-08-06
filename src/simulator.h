@@ -1,11 +1,13 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
-#include <glfw/glfw3.h>
+#include <glad/glad.h>
 #include "physics_engine.h"
 #include "renderer.h"
 #include "overlay.h"
 #include "clock.h"
+
+#include <glfw/glfw3.h>
 
 enum SimulatorState
 {

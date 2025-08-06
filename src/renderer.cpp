@@ -91,7 +91,6 @@ void Renderer::Render(
   // Bind the VAO and draw the quad
   glBindVertexArray(quadVAO);
   glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, particleCount);
-
   // Unbind the VAO
   glBindVertexArray(0);
 }

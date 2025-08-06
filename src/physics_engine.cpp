@@ -1,5 +1,3 @@
-#include <glad/glad.h>
-
 #include <thread>
 #include <chrono>
 
@@ -81,7 +79,6 @@ void PhysicsEngine::AddParticle(int typeId, glm::vec2 position, glm::vec2 veloci
     return;
 
   positionsInPtr[particleCount] = position;
-  positionsOutPtr[particleCount] = position;
   velocitiesPtr[particleCount] = velocity;
   typesPtr[particleCount] = typeId;
   colorPointers.push_back(&Configurations::particleColors[typeId]);
@@ -103,7 +100,7 @@ void PhysicsEngine::Update(float deltaTime)
   if (particleCount > 0) {
     computeShader.Use();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsInSSBO);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsInSSBO);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsOutSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, velocitySSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, typeSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, forcesSSBO);
@@ -115,7 +112,11 @@ void PhysicsEngine::Update(float deltaTime)
     computeShader.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 
     computeShader.Dispatch((particleCount + 255) / 256);
-    
+    if (swapFence)
+    {
+      glClientWaitSync(swapFence, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);
+      glDeleteSync(swapFence);
+    }
     std::swap(positionsInSSBO, positionsOutSSBO);
     std::swap(positionsInPtr, positionsOutPtr);
   }

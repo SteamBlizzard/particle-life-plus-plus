@@ -2,7 +2,6 @@
 #define RENDERER_H
 
 #include "shader.h"
-#include "physics_engine.h"
 #include <glfw/glfw3.h>
 #include <vector>
 
