@@ -9,7 +9,6 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "thread_pool.h"
 #include "shader.h"
 
 class PhysicsEngine
@@ -46,7 +45,6 @@ private:
   std::atomic<int> remaining;
   std::mutex mut;
   std::condition_variable condition;
-  ThreadPool threadPool;
 
   
 

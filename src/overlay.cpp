@@ -15,7 +15,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <thread>
 
 Overlay::~Overlay()
 {
@@ -235,8 +234,6 @@ void Overlay::settingsMenu()
     {
       Settings::setDisplayMode(window, Settings::DISPLAY_MODES[currentDisplayMode]);
     }
-
-    ImGui::SliderInt("Threads", &Settings::threadCount, 1, std::thread::hardware_concurrency());
 
     static bool vsync;
     ImGui::Checkbox("VSync Enabled", &vsync);

@@ -27,7 +27,6 @@ public:
       "Borderless",
       "Fullscreen"};
 
-  inline static int threadCount = 1;
   inline static bool vsync = false;
 
   static std::pair<int, int> GetResolution(GLFWwindow *window);

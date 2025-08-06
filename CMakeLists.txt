@@ -54,7 +54,6 @@ set(SOURCES
   src/settings.cpp
   src/shader.cpp
   src/simulator.cpp
-  src/thread_pool.cpp
 )
 
 add_executable(pl++ ${SOURCES})

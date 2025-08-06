@@ -1,6 +1,5 @@
 #include <glad/glad.h>
 
-#include <thread>
 #include <chrono>
 
 #include "physics_engine.h"
@@ -9,14 +8,12 @@
 #include "resource_manager.h"
 
 #include <iostream>
-#include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <sstream>
 #include <format>
 
 PhysicsEngine::PhysicsEngine()
-    : threadPool(ThreadPool(std::thread::hardware_concurrency()))
 {
 }
 
