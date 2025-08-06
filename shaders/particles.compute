@@ -48,20 +48,20 @@ void main() {
   vec2 forcedPosition = positionsIn[id] + velocities[id] * delta;
 
   float xBoundaryMax = display.x + particleRadius;
-  float xBoundaryMin = -display.x;
+  float xBoundaryMin = -particleRadius;
   float yBoundaryMax = display.y + particleRadius;
-  float yBoundaryMin = -display.y;
+  float yBoundaryMin = -particleRadius;
 
   if (forcedPosition.x > xBoundaryMax) {
-    forcedPosition.x = mod(forcedPosition.x, xBoundaryMax);
+    forcedPosition.x = mod(forcedPosition.x, xBoundaryMax) + xBoundaryMin;
   } else if (forcedPosition.x < xBoundaryMin) {
-    forcedPosition.x = xBoundaryMax - mod(-forcedPosition.x, xBoundaryMax);
+    forcedPosition.x = xBoundaryMax - mod(-forcedPosition.x, xBoundaryMax) - xBoundaryMin;
   }
 
   if (forcedPosition.y > yBoundaryMax) {
-    forcedPosition.y = mod(forcedPosition.y, yBoundaryMax);
+    forcedPosition.y = mod(forcedPosition.y, yBoundaryMax) + yBoundaryMin;
   } else if (forcedPosition.y < yBoundaryMin) {
-    forcedPosition.y = yBoundaryMax - mod(-forcedPosition.y, yBoundaryMax);
+    forcedPosition.y = yBoundaryMax - mod(-forcedPosition.y, yBoundaryMax) - yBoundaryMin;
   }
   
   positionsOut[id] = forcedPosition;
