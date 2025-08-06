@@ -28,7 +28,7 @@ void PhysicsEngine::Init()
 {
   unsigned int storageFlags = GL_MAP_WRITE_BIT | GL_MAP_COHERENT_BIT | GL_MAP_PERSISTENT_BIT | GL_DYNAMIC_STORAGE_BIT;
   unsigned int accessFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-  computeShader = ResourceManager::LoadShader("shaders/particles.compute", "computeShader");
+  computeShader = ResourceManager::LoadShader("shaders/particles.comp", "computeShader");
   glGenBuffers(1, &positionsInSSBO);
   glGenBuffers(1, &positionsOutSSBO);
   glGenBuffers(1, &velocitySSBO);
