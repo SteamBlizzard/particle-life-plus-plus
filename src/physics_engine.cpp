@@ -1,3 +1,5 @@
+#include <glad/glad.h>
+
 #include <thread>
 #include <chrono>
 
@@ -38,31 +40,34 @@ void PhysicsEngine::Init()
   size_t typeSize     = sizeof(int) * MAXIMUM_PARTICLES;
   size_t forceSize    = sizeof(float) * MAXIMUM_PARTICLE_TYPES * MAXIMUM_PARTICLE_TYPES;
 
-  // Positions buffer 1
+  // Input positions buffer
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionsInSSBO);
   glBufferStorage(GL_SHADER_STORAGE_BUFFER, positionSize, nullptr, storageFlags);
   positionsInPtr = reinterpret_cast<glm::vec2*>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, positionSize, accessFlags));
   if (!positionsInPtr)
     std::cerr << "Failed to map positionsIn buffer!\n";
 
-  // Positions buffer 2
+  // Output positions buffer
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionsOutSSBO);
   glBufferStorage(GL_SHADER_STORAGE_BUFFER, positionSize, nullptr, storageFlags);
   positionsOutPtr = reinterpret_cast<glm::vec2*>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, positionSize, accessFlags));
   if (!positionsOutPtr)
     std::cerr << "Failed to map positionsOut buffer!\n";
+
   // Velocities buffer
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, velocitySSBO);
   glBufferStorage(GL_SHADER_STORAGE_BUFFER, velocitySize, nullptr, storageFlags);
   velocitiesPtr = reinterpret_cast<glm::vec2*>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, velocitySize, accessFlags));
   if (!velocitiesPtr) 
     std::cerr << "Failed to map velocities buffer!\n";
+
   // Types buffer
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, typeSSBO);
   glBufferStorage(GL_SHADER_STORAGE_BUFFER, typeSize, nullptr, storageFlags);
   typesPtr = reinterpret_cast<int*>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, typeSize, accessFlags));
   if (!typesPtr)
     std::cerr << "Failed to map types buffer!\n";
+
   // Forces buffer
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, forcesSSBO);
   glBufferStorage(GL_SHADER_STORAGE_BUFFER, forceSize, nullptr, storageFlags);
@@ -95,9 +100,12 @@ void PhysicsEngine::UpdateColors()
   }
 }
 
-void PhysicsEngine::Update(float deltaTime)
+void PhysicsEngine::Update(float deltaTime, GLFWwindow *window)
 {
   if (particleCount > 0) {
+    int displayWidth, displayHeight;
+    glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+
     computeShader.Use();
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positionsInSSBO);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, positionsOutSSBO);
@@ -106,8 +114,11 @@ void PhysicsEngine::Update(float deltaTime)
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, forcesSSBO);
 
     computeShader.SetFloat("delta", deltaTime);
+    computeShader.SetFloat("particleRadius", Configurations::particleRadius);
+    computeShader.SetVec2i("display", displayWidth, displayHeight);
     computeShader.SetInteger("particleCount", particleCount);
     computeShader.SetFloat("friction", Configurations::friction);
+    computeShader.SetFloat("gravityRadius", Configurations::gravityRadius);
     computeShader.SetFloat("forceMultiplier", Configurations::forceMultiplier);
     computeShader.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 

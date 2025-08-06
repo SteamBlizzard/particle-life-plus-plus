@@ -39,7 +39,7 @@ public:
 
   GLFWwindow *Init();
   void Start();
-  void ProcessInput(float delta);
+  void ProcessInput();
   void Update(float delta);
   void Render();
 

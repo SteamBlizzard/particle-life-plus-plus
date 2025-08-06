@@ -23,6 +23,9 @@ public:
   // Force multiplier
   inline static float forceMultiplier = 10.0f;
 
+  // Maximum affected distance
+  inline static float gravityRadius = 50.0f;
+
 private:
   // Represents "particle <x> feels a force of [x,y] from particle <y>"
   // index calculation = length * x + y

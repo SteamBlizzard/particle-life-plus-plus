@@ -58,7 +58,7 @@ void Simulator::Start()
     double deltaTime = std::min(clock.GetDeltaTime(), 0.05);
 
     // Process input
-    ProcessInput(deltaTime);
+    ProcessInput();
 
     // Update physics engine
     Update(deltaTime);
@@ -83,7 +83,7 @@ GLFWwindow *Simulator::Init()
   return window;
 }
 
-void Simulator::ProcessInput(float delta)
+void Simulator::ProcessInput()
 {
   int displayWidth, displayHeight;
   glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
@@ -129,7 +129,7 @@ void Simulator::Update(float delta)
 {
   if (state == SIMULATOR_STATE_RUNNING)
   {
-    physicsEngine.Update(delta);
+    physicsEngine.Update(delta, window);
   }
 }
 

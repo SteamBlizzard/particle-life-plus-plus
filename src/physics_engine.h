@@ -3,6 +3,7 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glfw/glfw3.h>
 #include <vector>
 #include <atomic>
 #include <mutex>
@@ -19,7 +20,7 @@ public:
 
   void Init();
   void UpdateColors();
-  void Update(float deltaTime);
+  void Update(float deltaTime, GLFWwindow *window);
   void AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity);
 
   int particleCount = 0;

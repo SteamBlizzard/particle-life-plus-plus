@@ -22,8 +22,11 @@ layout(std430, binding = 4) buffer Forces {
 };
 
 uniform float delta;
+uniform float particleRadius;
+uniform ivec2 display;
 uniform int particleCount;
 uniform float friction;
+uniform float gravityRadius;
 uniform float forceMultiplier;
 uniform int maxTypeCount;
 
@@ -35,12 +38,31 @@ void main() {
   vec2 finalForce = vec2(0,0);
 
   for (int i = 0; i < particleCount; i++) {
-    if (i == id) continue;
+    if (distance(positionsIn[i], positionsIn[id]) > gravityRadius || i == id) continue;
     float force = forces[typeIds[id] * maxTypeCount + typeIds[i]];
     vec2 forceVector = normalize(positionsIn[i] - positionsIn[id]);
     forceVector *= force * forceMultiplier;
     finalForce += forceVector;
   }
   velocities[id] += finalForce * delta;
-  positionsOut[id] = positionsIn[id] + velocities[id] * delta;
+  vec2 forcedPosition = positionsIn[id] + velocities[id] * delta;
+
+  float xBoundaryMax = display.x + particleRadius;
+  float xBoundaryMin = -display.x;
+  float yBoundaryMax = display.y + particleRadius;
+  float yBoundaryMin = -display.y;
+
+  if (forcedPosition.x > xBoundaryMax) {
+    forcedPosition.x = mod(forcedPosition.x, xBoundaryMax);
+  } else if (forcedPosition.x < xBoundaryMin) {
+    forcedPosition.x = xBoundaryMax - mod(-forcedPosition.x, xBoundaryMax);
+  }
+
+  if (forcedPosition.y > yBoundaryMax) {
+    forcedPosition.y = mod(forcedPosition.y, yBoundaryMax);
+  } else if (forcedPosition.y < yBoundaryMin) {
+    forcedPosition.y = yBoundaryMax - mod(-forcedPosition.y, yBoundaryMax);
+  }
+  
+  positionsOut[id] = forcedPosition;
 }
