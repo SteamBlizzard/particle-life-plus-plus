@@ -2,10 +2,10 @@
 
 #include <chrono>
 
-#include "physics_engine.h"
-#include "settings.h"
-#include "configurations.h"
-#include "resource_manager.h"
+#include <plpp/physics_engine.h>
+#include <plpp/settings.h>
+#include <plpp/configurations.h>
+#include <plpp/resource_manager.h>
 
 #include <iostream>
 #include <mutex>

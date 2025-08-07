@@ -1,4 +1,4 @@
-#include "clock.h"
+#include <plpp/clock.h>
 
 #include <glfw/glfw3.h>
 

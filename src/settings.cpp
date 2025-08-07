@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <iostream>
 
-#include "settings.h"
+#include <plpp/settings.h>
 
 std::pair<int, int> Settings::GetResolution(GLFWwindow *window)
 {

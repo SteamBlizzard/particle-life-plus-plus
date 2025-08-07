@@ -7,7 +7,7 @@
 #include <iostream>
 #include <format>
 
-#include "shader.h"
+#include <plpp/shader.h>
 
 void Shader::compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource)
 {

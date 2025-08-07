@@ -4,8 +4,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <GLFW/glfw3.h>
 
-#include "renderer.h"
-#include "constants.h"
+#include <plpp/renderer.h>
+#include <plpp/constants.h>
 
 Renderer::Renderer(GLFWwindow *window, Shader &shader)
     : window(window), shader(shader)

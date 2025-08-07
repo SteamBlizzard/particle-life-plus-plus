@@ -20,14 +20,14 @@
 #include <algorithm>
 
 // Project includes
-#include "clock.h"
-#include "constants.h"
-#include "renderer.h"
-#include "resource_manager.h"
-#include "shader.h"
-#include "configurations.h"
+#include <plpp/clock.h>
+#include <plpp/constants.h>
+#include <plpp/renderer.h>
+#include <plpp/resource_manager.h>
+#include <plpp/shader.h>
+#include <plpp/configurations.h>
 
-#include "simulator.h"
+#include <plpp/simulator.h>
 
 Simulator::Simulator()
     : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)

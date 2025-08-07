@@ -6,7 +6,6 @@
 
 #include <plpp/shader.h>
 
-// TODO: Add future support for textures
 class ResourceManager
 {
 public:

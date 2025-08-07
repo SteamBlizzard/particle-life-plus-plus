@@ -1,4 +1,4 @@
-#include "configurations.h"
+#include <plpp/configurations.h>
 
 float &Configurations::GetForceValue(int typeIdActed, int typeIdActing)
 {

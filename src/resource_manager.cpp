@@ -1,5 +1,5 @@
 #include <glad/glad.h>
-#include "resource_manager.h"
+#include <plpp/resource_manager.h>
 
 #include <iostream>
 #include <sstream>

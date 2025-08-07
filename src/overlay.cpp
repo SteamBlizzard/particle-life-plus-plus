@@ -1,6 +1,6 @@
-#include "overlay.h"
-#include "settings.h"
-#include "configurations.h"
+#include <plpp/overlay.h>
+#include <plpp/settings.h>
+#include <plpp/configurations.h>
 
 // GLM
 #include <glm/glm.hpp>

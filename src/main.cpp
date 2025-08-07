@@ -4,8 +4,8 @@
 #include <cmath>
 
 // Project includes
-#include "constants.h"
-#include "simulator.h"
+#include <plpp/constants.h>
+#include <plpp/simulator.h>
 
 int main()
 {

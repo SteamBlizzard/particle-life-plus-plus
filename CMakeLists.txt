@@ -5,17 +5,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE Debug)
 
 add_library(imgui STATIC
-  include/imgui/imgui.cpp
-  include/imgui/imgui_draw.cpp
-  include/imgui/imgui_tables.cpp
-  include/imgui/imgui_widgets.cpp
-  include/imgui/imgui_demo.cpp
-  include/imgui/backends/imgui_impl_glfw.cpp
-  include/imgui/backends/imgui_impl_opengl3.cpp
+  lib/imgui/imgui.cpp
+  lib/imgui/imgui_draw.cpp
+  lib/imgui/imgui_tables.cpp
+  lib/imgui/imgui_widgets.cpp
+  lib/imgui/imgui_demo.cpp
+  lib/imgui/backends/imgui_impl_glfw.cpp
+  lib/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 add_library(glad STATIC
-  include/glad/glad.c
+  lib/glad/glad.c
 )
 
 add_library(glfw STATIC IMPORTED)
@@ -37,7 +37,7 @@ set_target_properties(imgui PROPERTIES
 set_target_properties(glfw PROPERTIES
   LINKER_LANGUAGE CXX
   IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/build/lib/libglfw3.a"
-  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/include/GLFW"
+  INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/lib"
   ARCHIVE_OUTPUT_DIRECTORY build/lib
   LIBRARY_OUTPUT_DIRECTORY build/lib
   RUNTIME_OUTPUT_DIRECTORY build/bin
@@ -57,9 +57,9 @@ set(SOURCES
 )
 
 add_executable(pl++ ${SOURCES})
-target_include_directories(pl++ PRIVATE include)
-target_include_directories(imgui PRIVATE include include/imgui include/imgui/backends)
-target_include_directories(glad PRIVATE include include/glad)
+target_include_directories(pl++ PRIVATE lib include)
+target_include_directories(imgui PRIVATE lib lib/imgui lib/imgui/backends)
+target_include_directories(glad PRIVATE lib lib/glad)
 target_link_libraries(pl++ PRIVATE glfw glad imgui)
 
 set_target_properties(pl++ PROPERTIES
