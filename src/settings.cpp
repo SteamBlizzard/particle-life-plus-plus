@@ -1,9 +1,7 @@
 #include "plpp/settings.h"
 
-// External Libraries
-#include <glad/glad.h>
-
 // C++ Standard Library
+#include <format>
 #include <iostream>
 
 std::pair<int, int> Settings::GetResolution(GLFWwindow *window)
@@ -61,6 +59,6 @@ void Settings::setDisplayMode(GLFWwindow *window, std::string displayMode)
   }
   else
   {
-    std::cerr << "ERROR::SETTINGS::DISPLAY: Invalid Display Mode '" << displayMode << "'" << std::endl;
+    std::cerr << std::format("ERROR::SETTINGS::DISPLAY: Invalid Display Mode '{}'", displayMode) << std::endl;
   }
 }

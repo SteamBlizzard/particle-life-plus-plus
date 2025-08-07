@@ -4,13 +4,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 // C++ Standard Library
 #include <format>
-#include <fstream>
 #include <iostream>
-#include <sstream>
 
 
 void Shader::compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource)

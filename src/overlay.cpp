@@ -2,7 +2,6 @@
 
 // External Libraries
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/imgui.h>
@@ -10,13 +9,11 @@
 // C++ Standard Library
 #include <format>
 #include <iostream>
-#include <sstream>
 #include <string>
 
 // Project Includes
 #include "plpp/configurations.h"
 #include "plpp/settings.h"
-
 
 Overlay::~Overlay()
 {

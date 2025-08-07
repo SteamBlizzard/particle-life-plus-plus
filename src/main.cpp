@@ -1,10 +1,4 @@
-// C++ Standard Library
-#include <iostream>
-#include <string>
-#include <cmath>
-
 // Project includes
-#include "plpp/constants.h"
 #include "plpp/simulator.h"
 
 int main()

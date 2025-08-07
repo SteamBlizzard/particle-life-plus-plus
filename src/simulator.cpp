@@ -1,17 +1,10 @@
 #include "plpp/simulator.h"
 
 // External Libraries
-#include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
 // C++ Standard Library
-#include <algorithm>
-#include <cmath>
 #include <iostream>
 #include <string>
 
@@ -22,8 +15,6 @@
 #include "plpp/renderer.h"
 #include "plpp/resource_manager.h"
 #include "plpp/shader.h"
-
-
 
 Simulator::Simulator()
     : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)

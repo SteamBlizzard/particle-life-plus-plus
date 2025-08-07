@@ -4,12 +4,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
-
-// C++ Standard Library
-#include <iostream>
-
-#include "plpp/constants.h"
 
 Renderer::Renderer(GLFWwindow *window, Shader &shader)
     : window(window), shader(shader)
