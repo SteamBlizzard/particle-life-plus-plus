@@ -1,13 +1,17 @@
+#include "plpp/shader.h"
+
+// External Libraries
 #include <glad/glad.h>
-
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-#include <fstream>
-#include <sstream>
-#include <iostream>
+// C++ Standard Library
 #include <format>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
-#include <plpp/shader.h>
 
 void Shader::compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource)
 {

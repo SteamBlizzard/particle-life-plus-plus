@@ -1,10 +1,12 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <string>
-
+// External Libraries
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+// C++ Standard Library
+#include <string>
 
 enum ShaderType
 {

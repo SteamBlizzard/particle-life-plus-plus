@@ -1,15 +1,16 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
+// External Libraries
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 #include <glfw/glfw3.h>
-#include <vector>
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
+#include <glm/glm.hpp>
 
-#include <plpp/shader.h>
+// C++ Standard Library
+#include <vector>
+
+// Project Includes
+#include "plpp/shader.h"
 
 class PhysicsEngine
 {
@@ -41,14 +42,6 @@ private:
   std::vector<glm::vec4*> colorPointers;
   void applyForces(int particle, const glm::vec2 &force, float deltaTime);
   glm::vec2 calculateForces(int particle);
-
-  std::atomic<int> remaining;
-  std::mutex mut;
-  std::condition_variable condition;
-
-  
-
-  void worker(int offset, int step, float deltaTime);
 };
 
 #endif

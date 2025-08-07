@@ -1,17 +1,18 @@
+#include "plpp/physics_engine.h"
+
+// External Libraries
 #include <glad/glad.h>
 
-#include <chrono>
-
-#include <plpp/physics_engine.h>
-#include <plpp/settings.h>
-#include <plpp/configurations.h>
-#include <plpp/resource_manager.h>
-
-#include <iostream>
-#include <mutex>
-#include <condition_variable>
-#include <sstream>
+// C++ Standard Library
 #include <format>
+#include <iostream>
+#include <sstream>
+
+
+// Project Includes
+#include "plpp/settings.h"
+#include "plpp/configurations.h"
+#include "plpp/resource_manager.h"
 
 PhysicsEngine::PhysicsEngine()
 {
@@ -158,19 +159,4 @@ glm::vec2 PhysicsEngine::calculateForces(int particle)
     finalForce += forceVector;
   }
   return finalForce;
-}
-
-void PhysicsEngine::worker(int start, int end, float deltaTime)
-{
-  for (int i = start; i < end; i++)
-  {
-    glm::vec2 forces = calculateForces(i);
-    applyForces(i, forces, deltaTime);
-  }
-
-  if (--remaining == 0)
-  {
-    std::lock_guard<std::mutex> lock(mut);
-    condition.notify_one();
-  }
 }

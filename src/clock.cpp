@@ -1,5 +1,7 @@
-#include <plpp/clock.h>
+#include "plpp/clock.h"
 
+// External Libraries
+#include <glad/glad.h>
 #include <glfw/glfw3.h>
 
 Clock::Clock()

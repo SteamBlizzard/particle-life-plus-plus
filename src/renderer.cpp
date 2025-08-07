@@ -1,11 +1,15 @@
+#include "plpp/renderer.h"
+
+// External Libraries
 #include <glad/glad.h>
-#include <iostream>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
-#include <GLFW/glfw3.h>
 
-#include <plpp/renderer.h>
-#include <plpp/constants.h>
+// C++ Standard Library
+#include <iostream>
+
+#include "plpp/constants.h"
 
 Renderer::Renderer(GLFWwindow *window, Shader &shader)
     : window(window), shader(shader)

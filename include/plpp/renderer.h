@@ -1,9 +1,15 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include <plpp/shader.h>
+// External Libraries
+#include <glad/glad.h>
 #include <glfw/glfw3.h>
+
+// C++ Standary Library
 #include <vector>
+
+// Project Includes
+#include "plpp/shader.h"
 
 class Renderer
 {

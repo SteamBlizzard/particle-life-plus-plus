@@ -1,12 +1,15 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <vector>
-#include <utility>
-#include <string>
-
+// External Libraries
+#include <glad/glad.h>
 #include <glfw/glfw3.h>
+
+// C++ Standard Library
 #include <array>
+#include <string>
+#include <utility>
+#include <vector>
 
 class Settings
 {

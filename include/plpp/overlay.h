@@ -1,8 +1,12 @@
 #ifndef OVERLAY_H
 #define OVERLAY_H
 
-#include <plpp/physics_engine.h>
+// External Libraries
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+// Project Includes
+#include "plpp/physics_engine.h"
 
 class Overlay
 {

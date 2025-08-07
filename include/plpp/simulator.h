@@ -1,13 +1,17 @@
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
 
+// External Libraries
 #include <glad/glad.h>
-#include <plpp/physics_engine.h>
-#include <plpp/renderer.h>
-#include <plpp/overlay.h>
-#include <plpp/clock.h>
-
 #include <glfw/glfw3.h>
+
+// Project Includes
+#include "plpp/physics_engine.h"
+#include "plpp/renderer.h"
+#include "plpp/overlay.h"
+#include "plpp/clock.h"
+
+
 
 enum SimulatorState
 {

@@ -1,9 +1,15 @@
 #ifndef CONFIGURATIONS_H
 #define CONFIGURATIONS_H
 
-#include <vector>
+// External Libraries
 #include <glm/glm.hpp>
-#include <plpp/constants.h>
+
+// C++ Standary Library
+#include <vector>
+
+// Project Includes
+#include "plpp/constants.h"
+
 
 class Configurations
 {

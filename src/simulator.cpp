@@ -1,33 +1,29 @@
-// GLAD
-#include <glad/glad.h>
+#include "plpp/simulator.h"
 
-// ImGui
+// External Libraries
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
-// GLM
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include <imgui/imgui.h>
-
 // C++ Standard Library
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <string>
-#include <cmath>
-#include <algorithm>
 
-// Project includes
-#include <plpp/clock.h>
-#include <plpp/constants.h>
-#include <plpp/renderer.h>
-#include <plpp/resource_manager.h>
-#include <plpp/shader.h>
-#include <plpp/configurations.h>
+// Project Includes
+#include "plpp/clock.h"
+#include "plpp/configurations.h"
+#include "plpp/constants.h"
+#include "plpp/renderer.h"
+#include "plpp/resource_manager.h"
+#include "plpp/shader.h"
 
-#include <plpp/simulator.h>
+
 
 Simulator::Simulator()
     : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)

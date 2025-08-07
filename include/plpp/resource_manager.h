@@ -1,10 +1,12 @@
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 
+// C++ Standard Library
 #include <map>
 #include <string>
 
-#include <plpp/shader.h>
+// Project Includes
+#include "plpp/shader.h"
 
 class ResourceManager
 {

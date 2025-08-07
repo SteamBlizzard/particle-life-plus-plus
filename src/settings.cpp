@@ -1,7 +1,10 @@
-#include <glad/glad.h>
-#include <iostream>
+#include "plpp/settings.h"
 
-#include <plpp/settings.h>
+// External Libraries
+#include <glad/glad.h>
+
+// C++ Standard Library
+#include <iostream>
 
 std::pair<int, int> Settings::GetResolution(GLFWwindow *window)
 {

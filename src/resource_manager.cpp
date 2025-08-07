@@ -1,6 +1,9 @@
-#include <glad/glad.h>
-#include <plpp/resource_manager.h>
+#include "plpp/resource_manager.h"
 
+// External Libraries
+#include <glad/glad.h>
+
+// C++ Standard Library
 #include <iostream>
 #include <sstream>
 #include <fstream>
