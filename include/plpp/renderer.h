@@ -11,23 +11,26 @@
 // Project Includes
 #include "plpp/shader.h"
 
-class Renderer
+namespace PLPP
 {
-public:
-  Renderer(GLFWwindow *window, Shader &shader);
-  ~Renderer();
+  class Renderer
+  {
+  public:
+    Renderer(GLFWwindow *window, Shader &shader);
+    ~Renderer();
 
-  void Render(const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);
+    void Render(const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);
 
-  Shader &GetShader() { return shader; }
+    Shader &GetShader() { return shader; }
 
-private:
-  Shader shader;
-  GLFWwindow *window;
-  unsigned int quadVAO;
-  unsigned int positionInstanceVBO;
-  unsigned int colorInstanceVBO;
-  void initRenderData();
-};
+  private:
+    Shader shader;
+    GLFWwindow *window;
+    unsigned int quadVAO;
+    unsigned int positionInstanceVBO;
+    unsigned int colorInstanceVBO;
+    void initRenderData();
+  };
+}
 
 #endif

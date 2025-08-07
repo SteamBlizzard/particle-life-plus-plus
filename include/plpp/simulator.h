@@ -11,52 +11,52 @@
 #include "plpp/overlay.h"
 #include "plpp/clock.h"
 
-
-
-enum SimulatorState
+namespace PLPP
 {
-  SIMULATOR_STATE_IDLE,
-  SIMULATOR_STATE_RUNNING,
-  SIMULATOR_STATE_PAUSED
-};
-
-class Simulator
-{
-public:
-  public:
-  SimulatorState state;
-  GLFWwindow *window;
-  PhysicsEngine physicsEngine;
-  Overlay overlay;
-  Clock clock;
-
-  static Simulator& GetInstance()
+  enum SimulatorState
   {
-    static Simulator instance;
-    return instance;
-  }
+    SIMULATOR_STATE_IDLE,
+    SIMULATOR_STATE_RUNNING,
+    SIMULATOR_STATE_PAUSED
+  };
 
-  Simulator(const Simulator&) = delete;
-  Simulator& operator=(const Simulator&) = delete;
-  Simulator(Simulator&&) = delete;
-  Simulator& operator=(Simulator&&) = delete;
+  class Simulator
+  {
+  public:
+  public:
+    SimulatorState state;
+    GLFWwindow *window;
+    PhysicsEngine physicsEngine;
+    Overlay overlay;
+    Clock clock;
 
-  GLFWwindow *Init();
-  void Start();
-  void ProcessInput();
-  void Update(float delta);
-  void Render();
+    static Simulator &GetInstance()
+    {
+      static Simulator instance;
+      return instance;
+    }
 
-private:
-  Simulator();
-  ~Simulator();
+    Simulator(const Simulator &) = delete;
+    Simulator &operator=(const Simulator &) = delete;
+    Simulator(Simulator &&) = delete;
+    Simulator &operator=(Simulator &&) = delete;
 
-  void loadResources();
-  GLFWwindow *initGLFW();
-  int initImGui(GLFWwindow *window);
+    GLFWwindow *Init();
+    void Start();
+    void ProcessInput();
+    void Update(float delta);
+    void Render();
 
-  Renderer *particleRenderer;
-};
+  private:
+    Simulator();
+    ~Simulator();
 
+    void loadResources();
+    GLFWwindow *initGLFW();
+    int initImGui(GLFWwindow *window);
+
+    Renderer *particleRenderer;
+  };
+}
 
 #endif
