@@ -2,7 +2,6 @@
 
 // Project Includes
 #include "plpp/clock.h"
-#include "plpp/configurations.h"
 #include "plpp/constants.h"
 #include "plpp/renderer.h"
 #include "plpp/resource_manager.h"
@@ -103,20 +102,20 @@ namespace PLPP
   }
 
   Simulator::Simulator()
-      : state(SIMULATOR_STATE_IDLE),
-        window(Init()),
-        physicsEngine(ResourceManager::LoadShader("shaders/particles.comp", "computeShader")),
-        overlay(window, &physicsEngine),
-        particleRenderer(window, ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader")) {}
+      : state_(SimulatorState::Idle),
+        window_(Init()),
+        physicsEngine_(ResourceManager::LoadShader("shaders/particles.comp", "computeShader")),
+        overlay_(window_, physicsEngine_),
+        particleRenderer_(window_, ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader")) {}
 
   Simulator::~Simulator() { glfwTerminate(); };
 
   void Simulator::Start()
   {
-    if (state == SIMULATOR_STATE_IDLE)
+    if (state_ == SimulatorState::Idle)
     {
-      state = SIMULATOR_STATE_PAUSED;
-      clock.Start();
+      state_ = SimulatorState::Paused;
+      clock_.Start();
       std::cout << "Simulator started." << std::endl;
     }
     else
@@ -124,18 +123,12 @@ namespace PLPP
       std::cerr << "Simulator is already running or not in a valid state to start." << std::endl;
     }
 
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window_))
     {
-      // Calculate delta time
-      double deltaTime = std::min(clock.GetDeltaTime(), 0.05);
+      double deltaTime = std::min(clock_.GetDeltaTime(), 0.05);
 
-      // Process input
       ProcessInput();
-
-      // Update physics engine
       Update(deltaTime);
-
-      // Render the scene
       Render();
     }
   }
@@ -169,77 +162,82 @@ namespace PLPP
     }
 
     glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
+
+    #ifdef DEBUG
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
     glDebugMessageCallback(GLDebugMessageCallback, nullptr);
-    
+    #endif
+
     return window;
   }
 
   void Simulator::ProcessInput()
   {
     int displayWidth, displayHeight;
-    glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
+    glfwGetFramebufferSize(window_, &displayWidth, &displayHeight);
 
     if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-      glfwSetWindowShouldClose(window, true);
+      glfwSetWindowShouldClose(window_, true);
 
     if (ImGui::IsKeyPressed(ImGuiKey_Enter))
-      state = state == SimulatorState::SIMULATOR_STATE_PAUSED ? state = SimulatorState::SIMULATOR_STATE_RUNNING : state = SimulatorState::SIMULATOR_STATE_PAUSED;
+      state_ = state_ == SimulatorState::Paused ? state_ = SimulatorState::Running : state_ = SimulatorState::Paused;
 
     if (ImGui::IsKeyPressed(ImGuiKey_1))
-      physicsEngine.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_2))
-      physicsEngine.AddParticle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(1, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_3))
-      physicsEngine.AddParticle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(2, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_4))
-      physicsEngine.AddParticle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(3, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_5))
-      physicsEngine.AddParticle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(4, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_6))
-      physicsEngine.AddParticle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(5, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_7))
-      physicsEngine.AddParticle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(6, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_8))
-      physicsEngine.AddParticle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(7, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_9))
-      physicsEngine.AddParticle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(8, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
 
     if (ImGui::IsKeyPressed(ImGuiKey_0))
-      physicsEngine.AddParticle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
+      physicsEngine_.AddParticle(9, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
   }
 
   void Simulator::Update(float delta)
   {
-    if (state == SIMULATOR_STATE_RUNNING)
-      physicsEngine.Update(delta, window);
+    if (state_ == SimulatorState::Running)
+      physicsEngine_.Update(delta, window_);
   }
 
   void Simulator::Render()
   {
     // Rendering
     int displayWidth, displayHeight;
-    glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
-    glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
+    glfwGetFramebufferSize(window_, &displayWidth, &displayHeight);
+    glClearColor(0.0f, 0.21f, 0.0f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
-    particleRenderer.Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
-    physicsEngine.swapFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    particleRenderer_.Render(physicsEngine_.GetParticlePositions(), physicsEngine_.particleRadius, physicsEngine_.colors, physicsEngine_.particleCount);
+    GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    physicsEngine_.SetFence(fence);
+
     // ImGui
-    overlay.HandleInput();
-    overlay.Render();
+    overlay_.HandleInput();
+    overlay_.Render();
 
     // Call & Swap
-    glfwSwapBuffers(window);
+    glfwSwapBuffers(window_);
     glfwPollEvents();
   }
 }

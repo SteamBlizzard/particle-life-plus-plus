@@ -23,37 +23,35 @@ namespace PLPP
     }
 
     void Start();
+
+  private:
+    enum class SimulatorState
+    {
+      Idle,
+      Running,
+      Paused
+    };
+
+    Simulator();
+    ~Simulator();
+
     void ProcessInput();
     void Update(float delta);
     void Render();
 
-  private:
-    Simulator();
-    ~Simulator();
+    GLFWwindow *Init();
 
-    enum SimulatorState
-    {
-      SIMULATOR_STATE_IDLE,
-      SIMULATOR_STATE_RUNNING,
-      SIMULATOR_STATE_PAUSED
-    };
-    
     Simulator(const Simulator &) = delete;
     Simulator &operator=(const Simulator &) = delete;
     Simulator(Simulator &&) = delete;
     Simulator &operator=(Simulator &&) = delete;
-    
-    GLFWwindow *Init();
 
-    SimulatorState state;
-    GLFWwindow *window;
-    PhysicsEngine physicsEngine;
-    Overlay overlay;
-    Renderer particleRenderer;
-    Clock clock;
-    
-    
-
+    SimulatorState state_;
+    GLFWwindow *window_;
+    PhysicsEngine physicsEngine_;
+    Overlay overlay_;
+    Renderer particleRenderer_;
+    Clock clock_;
   };
 }
 

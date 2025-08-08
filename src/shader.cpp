@@ -46,7 +46,7 @@ namespace PLPP
     if (geometrySource != nullptr)
       glDeleteShader(gShader);
 
-    type = ShaderType::RENDER;
+    type_ = ShaderType::Render;
   }
 
   void Shader::compile(const char *computeSource)
@@ -62,7 +62,7 @@ namespace PLPP
     checkCompileErrors(this->ID, "PROGRAM");
     glDeleteShader(sCompute);
 
-    type = ShaderType::COMPUTE;
+    type_ = ShaderType::Compute;
   }
 
   Shader &Shader::Use()
@@ -74,7 +74,7 @@ namespace PLPP
   // Only available for compute shaders
   void Shader::Dispatch(int groups)
   {
-    if (type == COMPUTE)
+    if (type_ == ShaderType::Compute)
     {
       glDispatchCompute(groups, 1, 1);
       glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

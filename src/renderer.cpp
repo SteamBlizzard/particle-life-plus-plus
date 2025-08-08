@@ -7,14 +7,14 @@
 
 namespace PLPP
 {
-  Renderer::Renderer(GLFWwindow *window, Shader shader) : window(window), shader(shader)
+  Renderer::Renderer(GLFWwindow *window, Shader shader) : window_(window), shader_(shader)
   {
     initRenderData();
   }
 
   Renderer::~Renderer()
   {
-    glDeleteVertexArrays(1, &quadVAO);
+    glDeleteVertexArrays(1, &quadVAO_);
   }
 
   void Renderer::initRenderData()
@@ -33,14 +33,14 @@ namespace PLPP
         0, 1, 3};
 
     // Instantiate Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
-    glGenVertexArrays(1, &quadVAO);
+    glGenVertexArrays(1, &quadVAO_);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    glGenBuffers(1, &positionInstanceVBO);
-    glGenBuffers(1, &colorInstanceVBO);
+    glGenBuffers(1, &positionInstanceVBO_);
+    glGenBuffers(1, &colorInstanceVBO_);
 
     // Bind VAO and set vertex attribute pointers
-    glBindVertexArray(quadVAO);
+    glBindVertexArray(quadVAO_);
 
     // Bind VBO and copy vertex data to it
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -55,7 +55,7 @@ namespace PLPP
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO_);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (void *)0);
     glEnableVertexAttribArray(1);
     glVertexAttribDivisor(1, 1);
@@ -71,23 +71,23 @@ namespace PLPP
       const int particleCount)
   {
     // Use the shader program
-    shader.Use();
+    shader_.Use();
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, colorInstanceVBO_);
     glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec4), colors.data(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, positions);
 
     int displayWidth, displayHeight;
-    glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
-    shader.SetVec2f("u_resolution", displayWidth, displayHeight);
+    glfwGetFramebufferSize(window_, &displayWidth, &displayHeight);
+    shader_.SetVec2f("u_resolution", displayWidth, displayHeight);
 
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(displayWidth), static_cast<float>(displayHeight), 0.0f, -1.0f, 1.0f);
-    shader.SetMat4("projection", projection);
+    shader_.SetMat4("projection", projection);
 
-    shader.SetFloat("radius", radius);
+    shader_.SetFloat("radius", radius);
 
     // Bind the VAO and draw the quad
-    glBindVertexArray(quadVAO);
+    glBindVertexArray(quadVAO_);
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, particleCount);
     // Unbind the VAO
     glBindVertexArray(0);

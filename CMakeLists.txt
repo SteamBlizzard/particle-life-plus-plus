@@ -10,7 +10,6 @@ find_package(imgui CONFIG REQUIRED)
 
 set(SOURCES
   src/clock.cpp
-  src/configurations.cpp
   src/main.cpp
   src/overlay.cpp
   src/physics_engine.cpp

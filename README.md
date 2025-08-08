@@ -8,6 +8,21 @@ I was fascinated by Particle Life and wanted to challenge myself by taking on a 
 
 This project is my first attempt at using & learning graphics APIs outside of game engines and my first major project in C++.
 
+## Installation & Usage
+### Prerequisites
+* gcc/g++
+* [vcpkg](https://github.com/microsoft/vcpkg)
+* [CMake](https://cmake.org/)
+
+### Steps
+1. Ensure you've properly configured `vcpkg`
+    - Run `bootstrap-vcpkg.bat`/`bootstrap-vcpkg.sh` if not already done
+    - Set `VCPKG_ROOT` environment variable to the path of vcpkg
+2. From the ParticleLife++ root directory, run: `cmake --preset release; make`
+3. Run the program from the project root:
+    - Windows: `./build/bin/release/pl++`
+    - Mac/Linux: `.\build\bin\release\pl++.exe`
+
 ## Credits & Resources
 * [Particle Life](https://github.com/tom-mohr/particle-life-app)
 * [Jeffrey Ventrella](https://www.ventrella.com/)

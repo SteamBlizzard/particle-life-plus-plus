@@ -13,7 +13,7 @@ namespace PLPP
   class Overlay
   {
   public:
-    Overlay(GLFWwindow *window, PhysicsEngine *physicsEngine);
+    Overlay(GLFWwindow *window, PhysicsEngine &physicsEngine_);
     ~Overlay();
 
     void Render();
@@ -21,7 +21,7 @@ namespace PLPP
 
   private:
     GLFWwindow *window;
-    PhysicsEngine *physicsEngine;
+    PhysicsEngine physicsEngine_;
     bool mainMenuBarEnabled = true;
     bool settingsAndConfigsMenuEnabled = false;
 

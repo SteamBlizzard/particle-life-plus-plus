@@ -10,17 +10,11 @@
 
 namespace PLPP
 {
-  enum ShaderType
-  {
-    RENDER,
-    COMPUTE
-  };
-
   class Shader
   {
   public:
     unsigned int ID;
-    Shader() {}
+    Shader() = default;
 
     Shader &Use();
 
@@ -46,8 +40,13 @@ namespace PLPP
     void SetMat4(const char *name, const glm::mat4 &matrix, bool useShader = false);
 
   private:
+    enum class ShaderType
+    {
+      Render,
+      Compute
+    };
     void checkCompileErrors(unsigned int object, std::string type);
-    ShaderType type;
+    ShaderType type_;
   };
 }
 

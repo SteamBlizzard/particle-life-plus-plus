@@ -1,7 +1,6 @@
 #include "plpp/overlay.h"
 
 // Project Includes
-#include "plpp/configurations.h"
 #include "plpp/settings.h"
 
 // External Libraries
@@ -17,10 +16,10 @@
 
 namespace PLPP
 {
-  Overlay::Overlay(GLFWwindow* window, PhysicsEngine *physicsEngine)
-    : window(window), physicsEngine(physicsEngine)
-    {
-      IMGUI_CHECKVERSION();
+  Overlay::Overlay(GLFWwindow *window, PhysicsEngine &physicsEngine_)
+      : window(window), physicsEngine_(physicsEngine_)
+  {
+    IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
@@ -30,7 +29,7 @@ namespace PLPP
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 430");
-    }
+  }
 
   Overlay::~Overlay()
   {
@@ -135,18 +134,18 @@ namespace PLPP
           {
             ImGui::ColorPicker4(
                 std::format("Select color for particle type {}", row).c_str(),
-                glm::value_ptr(Configurations::particleColors[row]),
+                glm::value_ptr(physicsEngine_.particleColors[row]),
                 ImGuiWindowFlags_AlwaysAutoResize);
             if (ImGui::Button("Close"))
             {
-              physicsEngine->UpdateColors();
+              physicsEngine_.UpdateColors();
               ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
           }
 
           // Doesn't work for some reason. TODO: Fix to make header cells colored.
-          // glm::vec4 color = Configurations::particleColors[row];
+          // glm::vec4 color = physicsEngine_.particleColors[row];
           // ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(color.r, color.g, color.b, color.a));
 
           for (int column = 0; column < particleCount; column++)
@@ -160,7 +159,7 @@ namespace PLPP
               ImGui::SetCursorPosY(ImGui::GetCursorPosY() + yOffset);
             }
             ImGui::PushItemWidth(-FLT_MIN);
-            float &force = physicsEngine->forcesPtr[row * MAXIMUM_PARTICLE_TYPES + column];
+            float &force = physicsEngine_.GetForcesBuffer()[row * MAXIMUM_PARTICLE_TYPES + column];
             ImGui::DragFloat("##force", &force, 0.005f, -1.0f, 1.0f, "%.2f");
             ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(-std::min(0, static_cast<int>(255 * force)), std::max(0, static_cast<int>(255 * force)), 0, 255));
             ImGui::PopItemWidth();
@@ -178,12 +177,12 @@ namespace PLPP
       ImGui::Text("Friction Coefficient");
       ImGui::Text("0.0 (Static)");
       ImGui::SameLine();
-      ImGui::DragFloat("1.0 (No Friction)", &Configurations::friction, 0.005f, 0.0f, 1.0f);
+      ImGui::DragFloat("1.0 (No Friction)", &physicsEngine_.friction, 0.005f, 0.0f, 1.0f);
 
-      ImGui::DragFloat("Particle Size", &Configurations::particleRadius, 1.0f, 1.0f, 200.0f);
-      ImGui::DragFloat("Particle Maximum Affected Radius", &Configurations::gravityRadius, 10.0, 1.0f, 500.0f);
+      ImGui::DragFloat("Particle Size", &physicsEngine_.particleRadius, 1.0f, 1.0f, 200.0f);
+      ImGui::DragFloat("Particle Maximum Affected Radius", &physicsEngine_.effectiveForceRadius, 10.0, 1.0f, 500.0f);
 
-      ImGui::DragFloat("Force Multiplier", &Configurations::forceMultiplier, 0.1f, 0.0f, 100.0f);
+      ImGui::DragFloat("Force Multiplier", &physicsEngine_.forceMultiplier, 0.1f, 0.0f, 100.0f);
       ImGui::EndTabItem();
     }
   }
@@ -193,7 +192,7 @@ namespace PLPP
     static int currentResolution = 0;
     if (ImGui::BeginTabItem("Settings"))
     {
-      ImGui::Text(std::format("Particle Count: {}", physicsEngine->particleCount).c_str());
+      ImGui::Text(std::format("Particle Count: {}", physicsEngine_.particleCount).c_str());
       std::pair<int, int> currentRes = Settings::RESOLUTIONS[currentResolution];
       if (ImGui::BeginCombo("Resolution", std::format("{}x{}", currentRes.first, currentRes.second).c_str()))
       {

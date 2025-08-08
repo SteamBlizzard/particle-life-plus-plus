@@ -6,47 +6,38 @@
 
 namespace PLPP
 {
-  Clock::Clock()
-      : startTime(0.0f), endTime(0.0f), lastTime(0.0f), running(false)
-  {
-  }
-
-  Clock::~Clock()
-  {
-  }
-
   void Clock::Start()
   {
-    if (!running)
+    if (!running_)
     {
-      startTime, lastTime = glfwGetTime();
-      running = true;
+      startTime_, lastTime_ = glfwGetTime();
+      running_ = true;
     }
   }
 
   void Clock::Stop()
   {
-    if (running)
+    if (running_)
     {
-      endTime = glfwGetTime();
-      running = false;
+      endTime_ = glfwGetTime();
+      running_ = false;
     }
   }
 
   double Clock::GetElapsedTime() const
   {
-    if (running)
+    if (running_)
     {
-      return glfwGetTime() - startTime;
+      return glfwGetTime() - startTime_;
     }
-    return endTime - startTime;
+    return endTime_ - startTime_;
   }
 
   double Clock::GetDeltaTime()
   {
     double currentTime = glfwGetTime();
-    double deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
+    double deltaTime = currentTime - lastTime_;
+    lastTime_ = currentTime;
     return deltaTime;
   }
 }

@@ -6,8 +6,8 @@ namespace PLPP
   class Clock
   {
   public:
-    Clock();
-    ~Clock();
+    Clock() = default;
+    ~Clock() = default;
 
     void Start();
     void Stop();
@@ -15,10 +15,10 @@ namespace PLPP
     double GetDeltaTime();
 
   private:
-    double startTime;
-    double endTime;
-    double lastTime;
-    bool running;
+    double startTime_;
+    double endTime_;
+    double lastTime_;
+    bool running_;
   };
 }
 #endif
