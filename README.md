@@ -15,6 +15,7 @@ This project is my first attempt at using & learning graphics APIs outside of ga
 * [OpenGL](https://www.opengl.org/)
 * [Dear ImGUI](https://github.com/ocornut/imgui)
 * [GLFW](https://www.glfw.org/)
-* [GLAD](https://glad.dav1d.de/)
+* [GLAD](https://github.com/Dav1dde/glad)
 * [OpenGL Mathematics (GLM)](https://glm.g-truc.net/0.9.9/)
 * [CMake](https://cmake.org/)
+* [vcpkg](https://github.com/microsoft/vcpkg)

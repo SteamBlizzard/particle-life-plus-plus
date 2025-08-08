@@ -2,7 +2,7 @@
 
 // External Libraries
 #include <glm/glm.hpp>
-#include <imgui/imgui.h>
+#include <imgui.h>
 
 // C++ Standard Library
 #include <iostream>
