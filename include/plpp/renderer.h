@@ -1,6 +1,9 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+// Project Includes
+#include "plpp/shader.h"
+
 // External Libraries
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
@@ -8,15 +11,12 @@
 // C++ Standary Library
 #include <vector>
 
-// Project Includes
-#include "plpp/shader.h"
-
 namespace PLPP
 {
   class Renderer
   {
   public:
-    Renderer(GLFWwindow *window, Shader &shader);
+    Renderer(GLFWwindow *window, Shader shader);
     ~Renderer();
 
     void Render(const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);

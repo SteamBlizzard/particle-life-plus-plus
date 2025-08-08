@@ -7,8 +7,7 @@
 
 namespace PLPP
 {
-  Renderer::Renderer(GLFWwindow *window, Shader &shader)
-      : window(window), shader(shader)
+  Renderer::Renderer(GLFWwindow *window, Shader shader) : window(window), shader(shader)
   {
     initRenderData();
   }

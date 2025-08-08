@@ -1,14 +1,14 @@
 #ifndef CONFIGURATIONS_H
 #define CONFIGURATIONS_H
 
+// Project Includes
+#include "plpp/constants.h"
+
 // External Libraries
 #include <glm/glm.hpp>
 
 // C++ Standary Library
 #include <vector>
-
-// Project Includes
-#include "plpp/constants.h"
 
 namespace PLPP
 {

@@ -1,6 +1,9 @@
 #ifndef PHYSICS_ENGINE_H
 #define PHYSICS_ENGINE_H
 
+// Project Includes
+#include "plpp/shader.h"
+
 // External Libraries
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
@@ -9,18 +12,14 @@
 // C++ Standard Library
 #include <vector>
 
-// Project Includes
-#include "plpp/shader.h"
-
 namespace PLPP
 {
   class PhysicsEngine
   {
   public:
-    PhysicsEngine();
-    ~PhysicsEngine();
+    PhysicsEngine(Shader computeShader);
+    ~PhysicsEngine() = default;
 
-    void Init();
     void UpdateColors();
     void Update(float deltaTime, GLFWwindow *window);
     void AddParticle(int typeId, glm::vec2 position, glm::vec2 velocity);

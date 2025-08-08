@@ -1,13 +1,5 @@
 #include "plpp/simulator.h"
 
-// External Libraries
-#include <glm/glm.hpp>
-#include <imgui.h>
-
-// C++ Standard Library
-#include <iostream>
-#include <string>
-
 // Project Includes
 #include "plpp/clock.h"
 #include "plpp/configurations.h"
@@ -16,17 +8,108 @@
 #include "plpp/resource_manager.h"
 #include "plpp/shader.h"
 
+// External Libraries
+#include <glm/glm.hpp>
+#include <imgui.h>
+
+// C++ Standard Library
+#include <iostream>
+#include <string>
+
 namespace PLPP
 {
-  Simulator::Simulator()
-      : state(SIMULATOR_STATE_IDLE), overlay(&physicsEngine)
+  namespace
   {
+    void framebufferSizeCallback(GLFWwindow *window, int width, int height)
+    {
+      glViewport(0, 0, width, height);
+    }
+
+    void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+                                         GLenum severity, GLsizei length,
+                                         const GLchar *message, const void *userParam)
+    {
+      std::cerr << "OpenGL Debug Message [" << id << "]: " << message << "\n";
+
+      // Optional: Print extra context
+      std::cerr << "    Source: ";
+      switch (source)
+      {
+      case GL_DEBUG_SOURCE_API:
+        std::cerr << "API";
+        break;
+      case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        std::cerr << "Window System";
+        break;
+      case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        std::cerr << "Shader Compiler";
+        break;
+      case GL_DEBUG_SOURCE_THIRD_PARTY:
+        std::cerr << "Third Party";
+        break;
+      case GL_DEBUG_SOURCE_APPLICATION:
+        std::cerr << "Application";
+        break;
+      case GL_DEBUG_SOURCE_OTHER:
+        std::cerr << "Other";
+        break;
+      }
+
+      std::cerr << "\n    Type: ";
+      switch (type)
+      {
+      case GL_DEBUG_TYPE_ERROR:
+        std::cerr << "Error";
+        break;
+      case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        std::cerr << "Deprecated Behavior";
+        break;
+      case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        std::cerr << "Undefined Behavior";
+        break;
+      case GL_DEBUG_TYPE_PORTABILITY:
+        std::cerr << "Portability";
+        break;
+      case GL_DEBUG_TYPE_PERFORMANCE:
+        std::cerr << "Performance";
+        break;
+      case GL_DEBUG_TYPE_OTHER:
+        std::cerr << "Other";
+        break;
+      case GL_DEBUG_TYPE_MARKER:
+        std::cerr << "Marker";
+        break;
+      }
+
+      std::cerr << "\n    Severity: ";
+      switch (severity)
+      {
+      case GL_DEBUG_SEVERITY_HIGH:
+        std::cerr << "High";
+        break;
+      case GL_DEBUG_SEVERITY_MEDIUM:
+        std::cerr << "Medium";
+        break;
+      case GL_DEBUG_SEVERITY_LOW:
+        std::cerr << "Low";
+        break;
+      case GL_DEBUG_SEVERITY_NOTIFICATION:
+        std::cerr << "Notification";
+        break;
+      }
+
+      std::cerr << "\n\n";
+    }
   }
 
-  Simulator::~Simulator()
-  {
-    glfwTerminate();
-  }
+  Simulator::Simulator()
+      : state(SIMULATOR_STATE_IDLE),
+        window(Init()),
+        physicsEngine(ResourceManager::LoadShader("shaders/particles.comp", "computeShader")),
+        overlay(window, &physicsEngine),
+        particleRenderer(window, ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader")) {}
+
+  Simulator::~Simulator() { glfwTerminate(); };
 
   void Simulator::Start()
   {
@@ -59,16 +142,38 @@ namespace PLPP
 
   GLFWwindow *Simulator::Init()
   {
-    if (!(window = initGLFW()))
+    if (!glfwInit())
+      return nullptr;
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
+    GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
+
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+    glfwSwapInterval(0);
+
+    if (!window)
     {
-      std::cerr << "ERROR::SIMULATOR::INIT: Failed to set up GLFW window." << std::endl;
+      std::cout << "Failed to create GLFW window." << std::endl;
+      glfwTerminate();
       return nullptr;
     }
-    overlay.Init(window);
-    physicsEngine.Init();
-    loadResources();
-    Shader particleShader = ResourceManager::GetShader("particleShader");
-    particleRenderer = new Renderer(window, particleShader);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+      std::cout << "Failed to initialize GLAD." << std::endl;
+      return nullptr;
+    }
+
+    glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+    glDebugMessageCallback(GLDebugMessageCallback, nullptr);
+    
     return window;
   }
 
@@ -127,7 +232,7 @@ namespace PLPP
     glfwGetFramebufferSize(window, &displayWidth, &displayHeight);
     glClearColor(0.0f, 0.42f, 0.0f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
-    particleRenderer->Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
+    particleRenderer.Render(physicsEngine.positionsInSSBO, Configurations::particleRadius, physicsEngine.colors, physicsEngine.particleCount);
     physicsEngine.swapFence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     // ImGui
     overlay.HandleInput();
@@ -136,128 +241,5 @@ namespace PLPP
     // Call & Swap
     glfwSwapBuffers(window);
     glfwPollEvents();
-  }
-
-  void framebufferSizeCallback(GLFWwindow *window, int width, int height)
-  {
-    glViewport(0, 0, width, height);
-  }
-
-  void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
-                                       GLenum severity, GLsizei length,
-                                       const GLchar *message, const void *userParam)
-  {
-    std::cerr << "OpenGL Debug Message [" << id << "]: " << message << "\n";
-
-    // Optional: Print extra context
-    std::cerr << "    Source: ";
-    switch (source)
-    {
-    case GL_DEBUG_SOURCE_API:
-      std::cerr << "API";
-      break;
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-      std::cerr << "Window System";
-      break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER:
-      std::cerr << "Shader Compiler";
-      break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:
-      std::cerr << "Third Party";
-      break;
-    case GL_DEBUG_SOURCE_APPLICATION:
-      std::cerr << "Application";
-      break;
-    case GL_DEBUG_SOURCE_OTHER:
-      std::cerr << "Other";
-      break;
-    }
-
-    std::cerr << "\n    Type: ";
-    switch (type)
-    {
-    case GL_DEBUG_TYPE_ERROR:
-      std::cerr << "Error";
-      break;
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-      std::cerr << "Deprecated Behavior";
-      break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-      std::cerr << "Undefined Behavior";
-      break;
-    case GL_DEBUG_TYPE_PORTABILITY:
-      std::cerr << "Portability";
-      break;
-    case GL_DEBUG_TYPE_PERFORMANCE:
-      std::cerr << "Performance";
-      break;
-    case GL_DEBUG_TYPE_OTHER:
-      std::cerr << "Other";
-      break;
-    case GL_DEBUG_TYPE_MARKER:
-      std::cerr << "Marker";
-      break;
-    }
-
-    std::cerr << "\n    Severity: ";
-    switch (severity)
-    {
-    case GL_DEBUG_SEVERITY_HIGH:
-      std::cerr << "High";
-      break;
-    case GL_DEBUG_SEVERITY_MEDIUM:
-      std::cerr << "Medium";
-      break;
-    case GL_DEBUG_SEVERITY_LOW:
-      std::cerr << "Low";
-      break;
-    case GL_DEBUG_SEVERITY_NOTIFICATION:
-      std::cerr << "Notification";
-      break;
-    }
-
-    std::cerr << "\n\n";
-  }
-
-  GLFWwindow *Simulator::initGLFW()
-  {
-    if (!glfwInit())
-      return nullptr;
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-    GLFWwindow *window = glfwCreateWindow(STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT, "Particle Life++", NULL, NULL);
-
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-    glfwSwapInterval(0);
-
-    if (!window)
-    {
-      std::cout << "Failed to create GLFW window." << std::endl;
-      glfwTerminate();
-      return nullptr;
-    }
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-      std::cout << "Failed to initialize GLAD." << std::endl;
-      return nullptr;
-    }
-
-    glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
-    glDebugMessageCallback(GLDebugMessageCallback, nullptr);
-
-    return window;
-  }
-
-  void Simulator::loadResources()
-  {
-    Shader circleShader = ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader");
   }
 }

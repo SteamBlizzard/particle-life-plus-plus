@@ -1,5 +1,10 @@
 #include "plpp/physics_engine.h"
 
+// Project Includes
+#include "plpp/settings.h"
+#include "plpp/configurations.h"
+#include "plpp/resource_manager.h"
+
 // External Libraries
 #include <glad/glad.h>
 
@@ -7,26 +12,12 @@
 #include <format>
 #include <iostream>
 
-// Project Includes
-#include "plpp/settings.h"
-#include "plpp/configurations.h"
-#include "plpp/resource_manager.h"
-
 namespace PLPP
 {
-  PhysicsEngine::PhysicsEngine()
-  {
-  }
-
-  PhysicsEngine::~PhysicsEngine()
-  {
-  }
-
-  void PhysicsEngine::Init()
+  PhysicsEngine::PhysicsEngine(Shader computeShader) : computeShader(computeShader)
   {
     unsigned int storageFlags = GL_MAP_WRITE_BIT | GL_MAP_COHERENT_BIT | GL_MAP_PERSISTENT_BIT | GL_DYNAMIC_STORAGE_BIT;
     unsigned int accessFlags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    computeShader = ResourceManager::LoadShader("shaders/particles.comp", "computeShader");
     glGenBuffers(1, &positionsInSSBO);
     glGenBuffers(1, &positionsOutSSBO);
     glGenBuffers(1, &velocitySSBO);

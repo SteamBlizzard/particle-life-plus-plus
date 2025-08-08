@@ -27,7 +27,7 @@ namespace PLPP
     void Dispatch(int groups);
 
     void compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource = nullptr);
-    void compile(const char *compileSource);
+    void compile(const char *computeSource);
     void SetBool(const char *name, bool value, bool useShader = false);
     void SetFloat(const char *name, float value, bool useShader = false);
     void SetInteger(const char *name, int value, bool useShader = false);

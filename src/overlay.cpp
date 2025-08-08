@@ -1,5 +1,9 @@
 #include "plpp/overlay.h"
 
+// Project Includes
+#include "plpp/configurations.h"
+#include "plpp/settings.h"
+
 // External Libraries
 #include <glm/glm.hpp>
 #include <imgui_impl_glfw.h>
@@ -11,22 +15,12 @@
 #include <iostream>
 #include <string>
 
-// Project Includes
-#include "plpp/configurations.h"
-#include "plpp/settings.h"
-
 namespace PLPP
 {
-  Overlay::~Overlay()
-  {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-  }
-
-  void Overlay::Init(GLFWwindow *window)
-  {
-    IMGUI_CHECKVERSION();
+  Overlay::Overlay(GLFWwindow* window, PhysicsEngine *physicsEngine)
+    : window(window), physicsEngine(physicsEngine)
+    {
+      IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
@@ -36,8 +30,13 @@ namespace PLPP
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 430");
+    }
 
-    this->window = window;
+  Overlay::~Overlay()
+  {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
   }
 
   void Overlay::Render()

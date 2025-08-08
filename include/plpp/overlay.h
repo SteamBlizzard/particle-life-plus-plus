@@ -1,22 +1,21 @@
 #ifndef OVERLAY_H
 #define OVERLAY_H
 
+// Project Includes
+#include "plpp/physics_engine.h"
+
 // External Libraries
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
-
-// Project Includes
-#include "plpp/physics_engine.h"
 
 namespace PLPP
 {
   class Overlay
   {
   public:
-    Overlay(PhysicsEngine *physicsEngine) : physicsEngine(physicsEngine) {}
+    Overlay(GLFWwindow *window, PhysicsEngine *physicsEngine);
     ~Overlay();
 
-    void Init(GLFWwindow *window);
     void Render();
     void HandleInput();
 

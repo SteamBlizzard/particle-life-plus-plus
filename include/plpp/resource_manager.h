@@ -1,12 +1,12 @@
 #ifndef RESOURCE_MANAGER_H
 #define RESOURCE_MANAGER_H
 
+// Project Includes
+#include "plpp/shader.h"
+
 // C++ Standard Library
 #include <map>
 #include <string>
-
-// Project Includes
-#include "plpp/shader.h"
 
 namespace PLPP
 {
