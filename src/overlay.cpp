@@ -181,7 +181,6 @@ namespace PLPP
 
       ImGui::DragFloat("Particle Size", &physicsEngine_.particleRadius, 1.0f, 1.0f, 200.0f);
       ImGui::DragFloat("Particle Maximum Affected Radius", &physicsEngine_.effectiveForceRadius, 10.0, 1.0f, 500.0f);
-
       ImGui::DragFloat("Force Multiplier", &physicsEngine_.forceMultiplier, 0.1f, 0.0f, 100.0f);
       ImGui::EndTabItem();
     }

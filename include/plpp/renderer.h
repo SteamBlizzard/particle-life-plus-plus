@@ -21,8 +21,6 @@ namespace PLPP
 
     void Render(const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);
 
-    Shader &GetShader() { return shader_; }
-
   private:
     Shader shader_;
     GLFWwindow *window_;

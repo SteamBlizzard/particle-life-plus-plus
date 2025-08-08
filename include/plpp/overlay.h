@@ -21,7 +21,7 @@ namespace PLPP
 
   private:
     GLFWwindow *window;
-    PhysicsEngine physicsEngine_;
+    PhysicsEngine &physicsEngine_;
     bool mainMenuBarEnabled = true;
     bool settingsAndConfigsMenuEnabled = false;
 

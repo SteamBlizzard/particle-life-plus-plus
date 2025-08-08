@@ -108,6 +108,7 @@ namespace PLPP
       computeShader_.SetInteger("particleCount", particleCount);
       computeShader_.SetFloat("friction", friction);
       computeShader_.SetFloat("gravityRadius", effectiveForceRadius);
+      std::cout << forceMultiplier << std::endl;
       computeShader_.SetFloat("forceMultiplier", forceMultiplier);
       computeShader_.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 
@@ -128,34 +129,5 @@ namespace PLPP
       std::swap(positionsInSSBO_, positionsOutSSBO_);
       std::swap(positionsInPtr_, positionsOutPtr_);
     }
-  }
-
-  float &PhysicsEngine::GetForceValue(int typeIdActed, int typeIdActing)
-  {
-    return PhysicsEngine::forceMatrix[typeIdActed * MAXIMUM_PARTICLE_TYPES + typeIdActing];
-  };
-
-  void PhysicsEngine::applyForces(int particle, const glm::vec2 &force, float deltaTime)
-  {
-    glm::vec2 velocity = velocities[particle];
-    velocities[particle] += (force * deltaTime) - (velocity * friction * deltaTime);
-  }
-
-  glm::vec2 PhysicsEngine::calculateForces(int particle)
-  {
-    glm::vec2 finalForce = glm::vec2();
-
-    glm::vec2 particlePosition = positions[particle];
-    for (int i = 0; i < particleCount; i++)
-    {
-      if (i == particle)
-        continue;
-      float force = GetForceValue(typeIds[particle], typeIds[i]);
-
-      glm::vec2 forceVector = normalize(positions[i] - particlePosition);
-      forceVector *= force * forceMultiplier;
-      finalForce += forceVector;
-    }
-    return finalForce;
   }
 }
