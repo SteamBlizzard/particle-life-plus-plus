@@ -1,15 +1,18 @@
 #include "plpp/physics_engine.h"
 
 // Project Includes
-#include "plpp/settings.h"
-#include "plpp/resource_manager.h"
+#include "plpp/constants.h"
+#include "plpp/shader.h"
 
 // External Libraries
 #include <glad/glad.h>
+#include <glfw/glfw3.h>
+#include <glm/glm.hpp>
 
 // C++ Standard Library
 #include <format>
 #include <iostream>
+#include <vector>
 
 namespace PLPP
 {
