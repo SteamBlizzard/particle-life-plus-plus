@@ -12,7 +12,7 @@
 
 namespace PLPP
 {
-  void Shader::Compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource)
+  Shader::Shader(const char *vertexSource, const char *fragmentSource, const char *geometrySource)
   {
     unsigned int sVertex, sFragment, gShader;
     // vertex Shader
@@ -51,7 +51,7 @@ namespace PLPP
     type_ = ShaderType::Render;
   }
 
-  void Shader::Compile(const char *computeSource)
+  Shader::Shader(const char *computeSource)
   {
     unsigned int sCompute;
     sCompute = glCreateShader(GL_COMPUTE_SHADER);

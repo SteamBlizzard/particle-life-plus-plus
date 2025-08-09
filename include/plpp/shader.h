@@ -17,16 +17,14 @@ namespace PLPP
   {
   public:
     unsigned int ID;
-    
-    Shader() : type_(ShaderType::None) {}
 
+    Shader(const char *vertexSource, const char *fragmentSource, const char *geometrySource = nullptr);
+    Shader(const char *computeSource);
     Shader &Use();
 
     void Render(GLFWwindow *window, const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);
     void Dispatch(int groups);
 
-    void Compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource = nullptr);
-    void Compile(const char *computeSource);
     void SetBool(const char *name, bool value, bool useShader = false);
     void SetFloat(const char *name, float value, bool useShader = false);
     void SetInteger(const char *name, int value, bool useShader = false);

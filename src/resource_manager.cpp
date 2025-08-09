@@ -14,19 +14,16 @@ namespace PLPP
 
   Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name)
   {
-    Shaders[name] = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
-    return Shaders[name];
+    Shader shader = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
+    Shaders.emplace(name, shader);
+    return shader;
   }
 
   Shader ResourceManager::LoadShader(const char *cShaderFile, std::string name)
   {
-    Shaders[name] = loadShaderFromFile(cShaderFile);
-    return Shaders[name];
-  }
-
-  Shader ResourceManager::GetShader(std::string name)
-  {
-    return Shaders[name];
+    Shader shader = loadShaderFromFile(cShaderFile);
+    Shaders.emplace(name, shader);
+    return shader;
   }
 
   void ResourceManager::Clear()
@@ -74,10 +71,8 @@ namespace PLPP
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
     const char *gShaderCode = geometryCode.c_str();
-    // 2. now create shader object from source code
-    Shader shader;
-    shader.Compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
-    return shader;
+
+    return Shader(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
   }
 
   Shader ResourceManager::loadShaderFromFile(const char *cShaderFile)
@@ -96,8 +91,6 @@ namespace PLPP
       std::cout << "ERROR::SHADER: Failed to read shader files" << std::endl;
     }
     const char *cShaderCode = computeCode.c_str();
-    Shader shader;
-    shader.Compile(cShaderCode);
-    return shader;
+    return Shader(cShaderCode);
   }
 }
