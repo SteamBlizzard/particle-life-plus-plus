@@ -54,12 +54,6 @@ namespace PLPP
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   }
 
-  void Overlay::HandleInput()
-  {
-    if (ImGui::IsKeyPressed(ImGuiKey_Q) && ImGui::IsKeyDown(ImGuiMod_Ctrl))
-      settingsAndConfigsMenuEnabled = !settingsAndConfigsMenuEnabled;
-  }
-
   void Overlay::showMainMenuBar()
   {
     if (ImGui::BeginMainMenuBar())

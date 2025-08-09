@@ -16,14 +16,15 @@ namespace PLPP
     Overlay(GLFWwindow *window, PhysicsEngine &physicsEngine_);
     ~Overlay();
 
+    bool mainMenuBarEnabled = true;
+    bool settingsAndConfigsMenuEnabled = false;
+
     void Render();
-    void HandleInput();
 
   private:
     GLFWwindow *window;
     PhysicsEngine &physicsEngine_;
-    bool mainMenuBarEnabled = true;
-    bool settingsAndConfigsMenuEnabled = false;
+    
 
     void showMainMenuBar();
     void showSettingsAndConfigsMenu();

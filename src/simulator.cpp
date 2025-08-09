@@ -177,6 +177,9 @@ namespace PLPP
 
     if (ImGui::IsKeyPressed(ImGuiKey_Escape))
       glfwSetWindowShouldClose(window_, true);
+    
+    if (ImGui::IsKeyPressed(ImGuiKey_Q) && ImGui::IsKeyDown(ImGuiMod_Ctrl))
+      overlay_.settingsAndConfigsMenuEnabled = !overlay_.settingsAndConfigsMenuEnabled;
 
     if (ImGui::IsKeyPressed(ImGuiKey_Enter))
       state_ = state_ == SimulatorState::Paused ? SimulatorState::Running : SimulatorState::Paused;
@@ -230,7 +233,6 @@ namespace PLPP
     physicsEngine_.SetFence(fence);
 
     // ImGui
-    overlay_.HandleInput();
     overlay_.Render();
 
     // Call & Swap
