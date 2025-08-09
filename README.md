@@ -18,7 +18,7 @@ This project is my first attempt at using & learning graphics APIs outside of ga
 1. Ensure you've properly configured `vcpkg`
     - Run `bootstrap-vcpkg.bat`/`bootstrap-vcpkg.sh` if not already done
     - Set `VCPKG_ROOT` environment variable to the path of vcpkg
-2. From the ParticleLife++ root directory, run: `cmake --preset release; make`
+2. From the ParticleLife++ root directory, run: `cmake --preset release; cmake --build --preset release`
 3. Run the program from the project root:
     - Windows: `./build/bin/release/pl++`
     - Mac/Linux: `.\build\bin\release\pl++.exe`

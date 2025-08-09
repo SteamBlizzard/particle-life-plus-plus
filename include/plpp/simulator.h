@@ -3,7 +3,6 @@
 
 // Project Includes
 #include "plpp/physics_engine.h"
-#include "plpp/renderer.h"
 #include "plpp/overlay.h"
 #include "plpp/clock.h"
 
@@ -33,7 +32,7 @@ namespace PLPP
     };
 
     Simulator();
-    ~Simulator();
+    ~Simulator() { glfwTerminate(); };
 
     void ProcessInput();
     void Update(float delta);
@@ -47,10 +46,10 @@ namespace PLPP
     Simulator &operator=(Simulator &&) = delete;
 
     SimulatorState state_;
-    GLFWwindow *window_;
+     GLFWwindow *window_;
+    Shader particleShader_;
     PhysicsEngine physicsEngine_;
     Overlay overlay_;
-    Renderer particleRenderer_;
     Clock clock_;
   };
 }

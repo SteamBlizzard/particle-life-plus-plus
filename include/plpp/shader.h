@@ -2,11 +2,14 @@
 #define SHADER_H
 
 // External Libraries
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 // C++ Standard Library
 #include <string>
+#include <vector>
 
 namespace PLPP
 {
@@ -14,14 +17,16 @@ namespace PLPP
   {
   public:
     unsigned int ID;
-    Shader() = default;
+    
+    Shader() : type_(ShaderType::None) {}
 
     Shader &Use();
 
+    void Render(GLFWwindow *window, const unsigned int positions, const float radius, const std::vector<glm::vec4> colors, const int particleCount);
     void Dispatch(int groups);
 
-    void compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource = nullptr);
-    void compile(const char *computeSource);
+    void Compile(const char *vertexSource, const char *fragmentSource, const char *geometrySource = nullptr);
+    void Compile(const char *computeSource);
     void SetBool(const char *name, bool value, bool useShader = false);
     void SetFloat(const char *name, float value, bool useShader = false);
     void SetInteger(const char *name, int value, bool useShader = false);
@@ -42,11 +47,20 @@ namespace PLPP
   private:
     enum class ShaderType
     {
+      None,
       Render,
       Compute
     };
-    void checkCompileErrors(unsigned int object, std::string type);
+
     ShaderType type_;
+    GLFWwindow *window_;
+    unsigned int quadVAO_;
+    unsigned int positionInstanceVBO_;
+    unsigned int colorInstanceVBO_;
+    void initRenderData();
+
+    void checkCompileErrors(unsigned int object, std::string type);
+    
   };
 }
 

@@ -76,7 +76,7 @@ namespace PLPP
     const char *gShaderCode = geometryCode.c_str();
     // 2. now create shader object from source code
     Shader shader;
-    shader.compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
+    shader.Compile(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
     return shader;
   }
 
@@ -97,7 +97,7 @@ namespace PLPP
     }
     const char *cShaderCode = computeCode.c_str();
     Shader shader;
-    shader.compile(cShaderCode);
+    shader.Compile(cShaderCode);
     return shader;
   }
 }

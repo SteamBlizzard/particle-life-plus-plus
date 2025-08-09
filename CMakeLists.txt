@@ -13,7 +13,6 @@ set(SOURCES
   src/main.cpp
   src/overlay.cpp
   src/physics_engine.cpp
-  src/renderer.cpp
   src/resource_manager.cpp
   src/settings.cpp
   src/shader.cpp

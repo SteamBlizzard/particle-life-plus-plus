@@ -3,7 +3,6 @@
 // Project Includes
 #include "plpp/clock.h"
 #include "plpp/constants.h"
-#include "plpp/renderer.h"
 #include "plpp/resource_manager.h"
 #include "plpp/shader.h"
 
@@ -106,9 +105,7 @@ namespace PLPP
         window_(Init()),
         physicsEngine_(ResourceManager::LoadShader("shaders/particles.comp", "computeShader")),
         overlay_(window_, physicsEngine_),
-        particleRenderer_(window_, ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader")) {}
-
-  Simulator::~Simulator() { glfwTerminate(); };
+        particleShader_(ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader")) {}
 
   void Simulator::Start()
   {
@@ -182,7 +179,7 @@ namespace PLPP
       glfwSetWindowShouldClose(window_, true);
 
     if (ImGui::IsKeyPressed(ImGuiKey_Enter))
-      state_ = state_ == SimulatorState::Paused ? state_ = SimulatorState::Running : state_ = SimulatorState::Paused;
+      state_ = state_ == SimulatorState::Paused ? SimulatorState::Running : SimulatorState::Paused;
 
     if (ImGui::IsKeyPressed(ImGuiKey_1))
       physicsEngine_.AddParticle(0, glm::vec2(std::rand() % displayWidth, std::rand() % displayHeight), glm::vec2());
@@ -228,7 +225,7 @@ namespace PLPP
     glfwGetFramebufferSize(window_, &displayWidth, &displayHeight);
     glClearColor(0.0f, 0.21f, 0.0f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
-    particleRenderer_.Render(physicsEngine_.GetParticlePositions(), physicsEngine_.particleRadius, physicsEngine_.colors, physicsEngine_.particleCount);
+    particleShader_.Render(window_, physicsEngine_.GetParticlePositions(), physicsEngine_.particleRadius, physicsEngine_.colors, physicsEngine_.particleCount);
     GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
     physicsEngine_.SetFence(fence);
 

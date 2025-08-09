@@ -108,7 +108,6 @@ namespace PLPP
       computeShader_.SetInteger("particleCount", particleCount);
       computeShader_.SetFloat("friction", friction);
       computeShader_.SetFloat("gravityRadius", effectiveForceRadius);
-      std::cout << forceMultiplier << std::endl;
       computeShader_.SetFloat("forceMultiplier", forceMultiplier);
       computeShader_.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 
