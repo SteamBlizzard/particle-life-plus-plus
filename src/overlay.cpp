@@ -103,7 +103,7 @@ namespace PLPP
       static int particleCount = 1;
       ImGui::SliderInt("Particle Types", &particleCount, 1, 100);
 
-      static ImGuiTableFlags flags = !ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_NoPadInnerX;
+      static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_NoPadInnerX;
 
       if (ImGui::BeginTable("Force Matrix", particleCount + 1, flags))
       {

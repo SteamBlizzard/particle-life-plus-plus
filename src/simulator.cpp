@@ -23,7 +23,7 @@ namespace PLPP
       glViewport(0, 0, width, height);
     }
 
-    void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+    void APIENTRY glDebugMessageCallback(GLenum source, GLenum type, GLuint id,
                                          GLenum severity, GLsizei length,
                                          const GLchar *message, const void *userParam)
     {
@@ -105,7 +105,7 @@ namespace PLPP
         window_(Init()),
         physicsEngine_(ResourceManager::LoadShader("shaders/particles.comp", "computeShader")),
         overlay_(window_, physicsEngine_),
-        particleShader_(ResourceManager::LoadShader("shaders/particle.vert", "shaders/particle.frag", nullptr, "particleShader")) {}
+        particleShader_(ResourceManager::LoadShader("shaders/particles.vert", "shaders/particles.frag", nullptr, "particleShader")) {}
 
   void Simulator::Start()
   {

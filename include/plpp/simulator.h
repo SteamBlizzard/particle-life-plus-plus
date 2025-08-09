@@ -46,10 +46,10 @@ namespace PLPP
     Simulator &operator=(Simulator &&) = delete;
 
     SimulatorState state_;
-     GLFWwindow *window_;
-    Shader particleShader_;
+    GLFWwindow *window_;
     PhysicsEngine physicsEngine_;
     Overlay overlay_;
+    Shader particleShader_;
     Clock clock_;
   };
 }
