@@ -105,7 +105,7 @@ namespace PLPP
         window_(Init()),
         physicsEngine_(ResourceManager::LoadShader("res/shaders/particles.comp", "computeShader")),
         overlay_(window_, physicsEngine_),
-        particleShader_(ResourceManager::LoadShader("res/shaders/particles.vert", "res/shaders/particles.frag", nullptr, "particleShader")) {}
+        particleShader_(ResourceManager::LoadShader("res/shaders/particles.vert", "res/shaders/particles.frag", "particleShader")) {}
 
   void Simulator::Start()
   {

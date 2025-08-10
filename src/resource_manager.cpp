@@ -12,9 +12,9 @@ namespace PLPP
 { // Instantiate static variables
   std::map<std::string, Shader> ResourceManager::Shaders;
 
-  Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile, std::string name)
+  Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, std::string name)
   {
-    Shader shader = loadShaderFromFile(vShaderFile, fShaderFile, gShaderFile);
+    Shader shader = loadShaderFromFile(vShaderFile, fShaderFile);
     Shaders.emplace(name, shader);
     return shader;
   }
@@ -28,17 +28,15 @@ namespace PLPP
 
   void ResourceManager::Clear()
   {
-    // (properly) delete all shaders
     for (auto iter : Shaders)
       glDeleteProgram(iter.second.ID);
   }
 
-  Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *fShaderFile, const char *gShaderFile)
+  Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *fShaderFile)
   {
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
-    std::string geometryCode;
     try
     {
       // open files
@@ -54,15 +52,6 @@ namespace PLPP
       // convert stream into string
       vertexCode = vShaderStream.str();
       fragmentCode = fShaderStream.str();
-      // if geometry shader path is present, also load a geometry shader
-      if (gShaderFile != nullptr)
-      {
-        std::ifstream geometryShaderFile(gShaderFile);
-        std::stringstream gShaderStream;
-        gShaderStream << geometryShaderFile.rdbuf();
-        geometryShaderFile.close();
-        geometryCode = gShaderStream.str();
-      }
     }
     catch (std::exception e)
     {
@@ -70,9 +59,8 @@ namespace PLPP
     }
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
-    const char *gShaderCode = geometryCode.c_str();
 
-    return Shader(vShaderCode, fShaderCode, gShaderFile != nullptr ? gShaderCode : nullptr);
+    return Shader(vShaderCode, fShaderCode);
   }
 
   Shader ResourceManager::loadShaderFromFile(const char *cShaderFile)

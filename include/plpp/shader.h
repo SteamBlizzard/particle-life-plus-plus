@@ -18,7 +18,7 @@ namespace PLPP
   public:
     unsigned int ID;
 
-    Shader(const char *vertexSource, const char *fragmentSource, const char *geometrySource = nullptr);
+    Shader(const char *vertexSource, const char *fragmentSource);
     Shader(const char *computeSource);
     Shader &Use();
 

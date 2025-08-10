@@ -28,7 +28,7 @@ namespace PLPP
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 430");
+    ImGui_ImplOpenGL3_Init("#version 440 core");
   }
 
   Overlay::~Overlay()
