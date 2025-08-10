@@ -1,0 +1,21 @@
+{
+  "name": "particle-life-plus-plus",
+  "version": "0.1.0",
+  "dependencies": [
+    {
+      "name": "imgui",
+      "features": [
+        "glfw-binding",
+        "opengl3-binding"
+      ]
+    },
+    {
+      "name": "glad",
+      "features": [
+        "gl-api-44"
+      ]
+    },
+    "glm",
+    "glfw3"
+  ]
+}

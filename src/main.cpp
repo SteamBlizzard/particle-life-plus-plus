@@ -1,22 +1,9 @@
-// C++ Standard Library
-#include <iostream>
-#include <string>
-#include <cmath>
-
 // Project includes
-#include "constants.h"
-#include "simulator.h"
+#include "plpp/simulator.h"
 
 int main()
 {
-  Simulator &simulator = Simulator::GetInstance();
-
-  GLFWwindow *window = simulator.Init();
-  
-  if (!window)
-  {
-    return -1;
-  }
+  PLPP::Simulator &simulator = PLPP::Simulator::GetInstance();
 
   simulator.Start();
 

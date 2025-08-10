@@ -1,47 +1,43 @@
-#include "clock.h"
+#include "plpp/clock.h"
 
+// External Libraries
+#include <glad/glad.h>
 #include <glfw/glfw3.h>
 
-Clock::Clock()
-    : startTime(0.0f), endTime(0.0f), lastTime(0.0f), running(false)
+namespace PLPP
 {
-}
-
-Clock::~Clock()
-{
-}
-
-void Clock::Start()
-{
-  if (!running)
+  void Clock::Start()
   {
-    startTime, lastTime = glfwGetTime();
-    running = true;
+    if (!running_)
+    {
+      startTime_, lastTime_ = glfwGetTime();
+      running_ = true;
+    }
   }
-}
 
-void Clock::Stop()
-{
-  if (running)
+  void Clock::Stop()
   {
-    endTime = glfwGetTime();
-    running = false;
+    if (running_)
+    {
+      endTime_ = glfwGetTime();
+      running_ = false;
+    }
   }
-}
 
-double Clock::GetElapsedTime() const
-{
-  if (running)
+  double Clock::GetElapsedTime() const
   {
-    return glfwGetTime() - startTime;
+    if (running_)
+    {
+      return glfwGetTime() - startTime_;
+    }
+    return endTime_ - startTime_;
   }
-  return endTime - startTime;
-}
 
-double Clock::GetDeltaTime()
-{
-  double currentTime = glfwGetTime();
-  double deltaTime = currentTime - lastTime;
-  lastTime = currentTime;
-  return deltaTime;
+  double Clock::GetDeltaTime()
+  {
+    double currentTime = glfwGetTime();
+    double deltaTime = currentTime - lastTime_;
+    lastTime_ = currentTime;
+    return deltaTime;
+  }
 }
