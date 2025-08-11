@@ -22,7 +22,9 @@ namespace PLPP
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void)io;
+    #ifndef NDEBUG
+    io.ConfigDebugHighlightIdConflicts = false;
+    #endif
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui::StyleColorsDark();
 
@@ -49,7 +51,7 @@ namespace PLPP
       showMainMenuBar();
     if (settingsAndConfigsMenuEnabled)
       showSettingsAndConfigsMenu();
-    // Rendering
+
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   }
@@ -94,14 +96,14 @@ namespace PLPP
       ImGui::Text("Particle Life++ Configuration");
       ImGui::Separator();
 
-      static int particleCount = 1;
-      ImGui::SliderInt("Particle Types", &particleCount, 1, 100);
+      ImGui::SliderInt("Particle Types", &typeCount_, 1, 100);
 
-      static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_NoPadInnerX;
+      ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollX | ImGuiTableFlags_NoPadOuterX | ImGuiTableFlags_NoPadInnerX;
 
-      if (ImGui::BeginTable("Force Matrix", particleCount + 1, flags))
+      if (ImGui::BeginTable("Force Matrix", typeCount_ + 1, flags))
       {
-        for (int i = 0; i < particleCount + 1; i++)
+        // Styling initialization
+        for (int i = 0; i < typeCount_ + 1; i++)
         {
           ImGui::TableSetupColumn(NULL, ImGuiTableColumnFlags_WidthFixed, CONFIG_MATRIX_CELL_WIDTH);
         }
@@ -109,26 +111,18 @@ namespace PLPP
         ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0, 0, 0, 0));
         ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(0, 0, 0, 0));
+
+        // Header Color Pickers
         ImGui::TableNextRow();
-        for (int i = 0; i < particleCount; i++)
+        for (int i = 0; i < typeCount_; i++)
         {
           ImGui::TableSetColumnIndex(i + 1);
-          ImGui::TextUnformatted(std::to_string(i).c_str());
-        }
-        for (int row = 0; row < particleCount; row++)
-        {
-          ImGui::TableNextRow(ImGuiTableRowFlags_None, CONFIG_MATRIX_CELL_HEIGHT);
-          ImGui::TableSetColumnIndex(0);
-          ImGui::TextUnformatted(std::to_string(row).c_str());
-
-          if (ImGui::Button(std::format("Customize##{}", row).c_str()))
-            ImGui::OpenPopup(std::format("ColorPicker##{}", row).c_str());
-
-          if (ImGui::BeginPopupModal(std::format("ColorPicker##{}", row).c_str()))
+          drawCircle(i);
+          if (ImGui::BeginPopupModal(std::format("Particle Color Picker##{}", i).c_str(), nullptr, ImGuiPopupFlags_NoReopen))
           {
             ImGui::ColorPicker4(
-                std::format("Select color for particle type {}", row).c_str(),
-                glm::value_ptr(physicsEngine_.particleColors[row]),
+                std::format("Select color for particle type {}", i).c_str(),
+                glm::value_ptr(physicsEngine_.particleColors[i]),
                 ImGuiWindowFlags_AlwaysAutoResize);
             if (ImGui::Button("Close"))
             {
@@ -137,12 +131,17 @@ namespace PLPP
             }
             ImGui::EndPopup();
           }
+        }
 
-          // Doesn't work for some reason. TODO: Fix to make header cells colored.
-          // glm::vec4 color = physicsEngine_.particleColors[row];
-          // ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, IM_COL32(color.r, color.g, color.b, color.a));
+        for (int row = 0; row < typeCount_; row++)
+        {
+          // Column Color Pickers
+          ImGui::TableNextRow(ImGuiTableRowFlags_None, CONFIG_MATRIX_CELL_HEIGHT);
+          ImGui::TableSetColumnIndex(0);
+          drawCircle(row);
 
-          for (int column = 0; column < particleCount; column++)
+          // Force values
+          for (int column = 0; column < typeCount_; column++)
           {
             ImGui::TableSetColumnIndex(column + 1);
             ImGui::PushID((row * MAXIMUM_PARTICLE_TYPES) + column);
@@ -174,7 +173,11 @@ namespace PLPP
       ImGui::DragFloat("1.0 (No Friction)", &physicsEngine_.friction, 0.005f, 0.0f, 1.0f);
 
       ImGui::DragFloat("Particle Size", &physicsEngine_.particleRadius, 1.0f, 1.0f, 200.0f);
-      ImGui::DragFloat("Particle Maximum Affected Radius", &physicsEngine_.effectiveForceRadius, 10.0, 1.0f, 500.0f);
+      ImGui::DragFloat("Particle Maximum Affected Radius", &physicsEngine_.gravityRadiusOuter, 5.0f, 1.0f, 500.0f);
+      ImGui::DragFloat("Particle Minimum Neighbor Distance", &physicsEngine_.gravityRadiusInner, 5.0f, 1.0f, 500.0f);
+      if (physicsEngine_.gravityRadiusInner > physicsEngine_.gravityRadiusOuter)
+        physicsEngine_.gravityRadiusInner = physicsEngine_.gravityRadiusOuter;
+
       ImGui::DragFloat("Force Multiplier", &physicsEngine_.forceMultiplier, 0.1f, 0.0f, 100.0f);
       ImGui::EndTabItem();
     }
@@ -182,64 +185,79 @@ namespace PLPP
 
   void Overlay::settingsMenu()
   {
-    static int currentResolution = 0;
     if (ImGui::BeginTabItem("Settings"))
     {
       ImGui::Text(std::format("Particle Count: {}", physicsEngine_.particleCount).c_str());
-      std::pair<int, int> currentRes = Settings::RESOLUTIONS[currentResolution];
+      std::pair<int, int> currentRes = Settings::RESOLUTIONS[currentResolution_];
       if (ImGui::BeginCombo("Resolution", std::format("{}x{}", currentRes.first, currentRes.second).c_str()))
       {
         for (int i = 0; i < Settings::RESOLUTIONS.size(); i++)
         {
-          bool selected = currentResolution == i;
+          bool selected = currentResolution_ == i;
           std::pair res = Settings::RESOLUTIONS[i];
           if (ImGui::Selectable(std::format("{}x{}", res.first, res.second).c_str(), selected))
           {
-            currentResolution = i;
+            currentResolution_ = i;
           }
         }
         ImGui::EndCombo();
       }
 
-      if (ImGui::Button("Apply Resolution") && Settings::GetResolution(window) != Settings::RESOLUTIONS[currentResolution])
+      if (ImGui::Button("Apply Resolution") && Settings::GetResolution(window) != Settings::RESOLUTIONS[currentResolution_])
       {
-        Settings::SetResolution(window, Settings::RESOLUTIONS[currentResolution]);
+        Settings::SetResolution(window, Settings::RESOLUTIONS[currentResolution_]);
       }
 
-      static int currentDisplayMode = 0;
-      std::string currentDisplay = Settings::DISPLAY_MODES[currentDisplayMode];
+      std::string currentDisplay = Settings::DISPLAY_MODES[currentDisplayMode_];
       if (ImGui::BeginCombo("Window Type", currentDisplay.c_str()))
       {
         for (int i = 0; i < Settings::DISPLAY_MODES.size(); i++)
         {
-          bool selected = currentDisplayMode == i;
+          bool selected = currentDisplayMode_ == i;
           std::string displayMode = Settings::DISPLAY_MODES[i];
           if (ImGui::Selectable(displayMode.c_str(), selected))
           {
-            currentDisplayMode = i;
+            currentDisplayMode_ = i;
           }
         }
         ImGui::EndCombo();
       }
 
-      if (ImGui::Button("Apply Display Mode") && Settings::GetDisplayMode(window) != Settings::DISPLAY_MODES[currentDisplayMode])
+      if (ImGui::Button("Apply Display Mode") && Settings::GetDisplayMode(window) != Settings::DISPLAY_MODES[currentDisplayMode_])
       {
-        Settings::setDisplayMode(window, Settings::DISPLAY_MODES[currentDisplayMode]);
+        Settings::setDisplayMode(window, Settings::DISPLAY_MODES[currentDisplayMode_]);
       }
 
-      static bool vsync;
-      ImGui::Checkbox("VSync Enabled", &vsync);
-      if (vsync && !Settings::vsync)
+      ImGui::Checkbox("VSync Enabled", &vsync_);
+      if (vsync_ && !Settings::vsync)
       {
         glfwSwapInterval(1);
         Settings::vsync = true;
       }
-      else if (!vsync && Settings::vsync)
+      else if (!vsync_ && Settings::vsync)
       {
         glfwSwapInterval(0);
         Settings::vsync = false;
       }
       ImGui::EndTabItem();
     }
+  }
+
+  void Overlay::drawCircle(int particleId)
+  {
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImVec2 center = ImVec2(
+        pos.x + CONFIG_MATRIX_CELL_WIDTH * 0.5f,
+        pos.y + CONFIG_MATRIX_CELL_HEIGHT * 0.5f
+    );
+    float radius = CONFIG_MATRIX_CELL_WIDTH * 0.5f;
+    
+    // Get the draw list and draw the circle
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    glm::vec4 color = physicsEngine_.particleColors[particleId];
+    draw_list->AddCircleFilled(center, radius, IM_COL32(color.r * 255, color.g * 255, color.b * 255, color.a * 255));
+
+    if (ImGui::InvisibleButton(std::format("Color##{}", particleId).c_str(), ImVec2(CONFIG_MATRIX_CELL_WIDTH, CONFIG_MATRIX_CELL_HEIGHT)))
+      ImGui::OpenPopup(std::format("Particle Color Picker##{}", particleId).c_str());
   }
 }

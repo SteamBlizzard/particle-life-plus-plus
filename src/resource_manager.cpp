@@ -9,7 +9,7 @@
 #include <fstream>
 
 namespace PLPP
-{ // Instantiate static variables
+{
   std::map<std::string, Shader> ResourceManager::Shaders;
 
   Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, std::string name)
@@ -55,7 +55,7 @@ namespace PLPP
     }
     catch (std::exception e)
     {
-      std::cout << "ERROR::SHADER: Failed to read shader files" << std::endl;
+      std::cerr << "ERROR::SHADER: Failed to read shader files" << std::endl;
     }
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
@@ -76,7 +76,7 @@ namespace PLPP
     }
     catch (std::exception e)
     {
-      std::cout << "ERROR::SHADER: Failed to read shader files" << std::endl;
+      std::cerr << "ERROR::RESOURCE_MANAGER::SHADER: Failed to read shader files" << std::endl;
     }
     const char *cShaderCode = computeCode.c_str();
     return Shader(cShaderCode);

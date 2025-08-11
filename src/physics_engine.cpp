@@ -36,35 +36,35 @@ namespace PLPP
     glBufferStorage(GL_SHADER_STORAGE_BUFFER, positionSize, nullptr, storageFlags);
     positionsInPtr_ = reinterpret_cast<glm::vec2 *>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, positionSize, accessFlags));
     if (!positionsInPtr_)
-      std::cerr << "Failed to map positionsIn buffer!\n";
+      std::cerr << "ERROR::PHYSICS_ENGINE::MAP_BUFFER: Failed to map positionsIn buffer!\n";
 
     // Output positions buffer
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, positionsOutSSBO_);
     glBufferStorage(GL_SHADER_STORAGE_BUFFER, positionSize, nullptr, storageFlags);
     positionsOutPtr_ = reinterpret_cast<glm::vec2 *>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, positionSize, accessFlags));
     if (!positionsOutPtr_)
-      std::cerr << "Failed to map positionsOut buffer!\n";
+      std::cerr << "ERROR::PHYSICS_ENGINE::MAP_BUFFER: Failed to map positionsOut buffer!\n";
 
     // Velocities buffer
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, velocitySSBO_);
     glBufferStorage(GL_SHADER_STORAGE_BUFFER, velocitySize, nullptr, storageFlags);
     velocitiesPtr_ = reinterpret_cast<glm::vec2 *>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, velocitySize, accessFlags));
     if (!velocitiesPtr_)
-      std::cerr << "Failed to map velocities buffer!\n";
+      std::cerr << "ERROR::PHYSICS_ENGINE::MAP_BUFFER: Failed to map velocities buffer!\n";
 
     // Types buffer
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, typeSSBO_);
     glBufferStorage(GL_SHADER_STORAGE_BUFFER, typeSize, nullptr, storageFlags);
     typesPtr_ = reinterpret_cast<int *>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, typeSize, accessFlags));
     if (!typesPtr_)
-      std::cerr << "Failed to map types buffer!\n";
+      std::cerr << "ERROR::PHYSICS_ENGINE::MAP_BUFFER: Failed to map types buffer!\n";
 
     // Forces buffer
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, forcesSSBO_);
     glBufferStorage(GL_SHADER_STORAGE_BUFFER, forceSize, nullptr, storageFlags);
     forcesPtr_ = reinterpret_cast<float *>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, forceSize, accessFlags));
     if (!forcesPtr_)
-      std::cerr << "Failed to map forces buffer!\n";
+      std::cerr << "ERROR::PHYSICS_ENGINE::MAP_BUFFER: Failed to map forces buffer!\n";
 
     memcpy(positionsOutPtr_, positionsInPtr_, sizeof(glm::vec2) * MAXIMUM_PARTICLES);
   }
@@ -110,19 +110,13 @@ namespace PLPP
       computeShader_.SetVec2i("display", displayWidth, displayHeight);
       computeShader_.SetInteger("particleCount", particleCount);
       computeShader_.SetFloat("friction", friction);
-      computeShader_.SetFloat("gravityRadius", effectiveForceRadius);
+      computeShader_.SetFloat("gravityRadiusOuter", gravityRadiusOuter);
+      computeShader_.SetFloat("gravityRadiusInner", gravityRadiusInner);
       computeShader_.SetFloat("forceMultiplier", forceMultiplier);
       computeShader_.SetInteger("maxTypeCount", MAXIMUM_PARTICLE_TYPES);
 
       computeShader_.Dispatch((particleCount + 255) / 256);
       for (int i = 0; i < particleCount; ++i)
-      {
-        if (!std::isfinite(positionsOutPtr_[i].x) || !std::isfinite(positionsOutPtr_[i].y))
-        {
-          std::cerr << "Particle " << i << " has invalid position: "
-                    << positionsOutPtr_[i].x << ", " << positionsOutPtr_[i].y << std::endl;
-        }
-      }
       if (swapFence_)
       {
         glClientWaitSync(swapFence_, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000);

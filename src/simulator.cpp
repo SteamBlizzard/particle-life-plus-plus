@@ -147,20 +147,20 @@ namespace PLPP
 
     if (!window)
     {
-      std::cout << "Failed to create GLFW window." << std::endl;
+      std::cerr << "ERROR::SIMULATOR::GLFW_FAILED: Failed to create GLFW window." << std::endl;
       glfwTerminate();
       return nullptr;
     }
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-      std::cout << "Failed to initialize GLAD." << std::endl;
+      std::cerr << "ERROR::SIMULATOR::GLAD_FAILED: Failed to initialize GLAD." << std::endl;
       return nullptr;
     }
 
     glViewport(0, 0, STARTING_WINDOW_WIDTH, STARTING_WINDOW_HEIGHT);
 
-    #ifdef DEBUG
+    #ifdef NDEBUG
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);

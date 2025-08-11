@@ -102,7 +102,7 @@ namespace PLPP
   {
     if (type_ != ShaderType::Compute)
     {
-      std::cerr << "ERROR::SHADER::COMPUTE: Attempting to render a shader of invalid type!" << std::endl;
+      std::cerr << "ERROR::SHADER::COMPUTE: Attempting to dispatch a shader of invalid type!" << std::endl;
       return;
     }
       glDispatchCompute(groups, 1, 1);
@@ -211,7 +211,7 @@ namespace PLPP
       if (!success)
       {
         glGetShaderInfoLog(object, 1024, NULL, infoLog);
-        std::cout << std::format("ERROR::SHADER::{}::COMPILATION_FAILED\n{}", type, infoLog) << std::endl;
+        std::cerr << std::format("ERROR::SHADER::{}::COMPILATION_FAILED\n{}", type, infoLog) << std::endl;
       }
     }
     else
@@ -220,7 +220,7 @@ namespace PLPP
       if (!success)
       {
         glGetProgramInfoLog(object, 1024, NULL, infoLog);
-        std::cout << std::format("ERROR::SHADER::{}::LINKING_FAILED\n{}", type, infoLog) << std::endl;
+        std::cerr << std::format("ERROR::SHADER::{}::LINKING_FAILED\n{}", type, infoLog) << std::endl;
       }
     }
   }

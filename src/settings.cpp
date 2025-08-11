@@ -38,8 +38,6 @@ namespace PLPP
 
   void Settings::setDisplayMode(GLFWwindow *window, std::string displayMode)
   {
-    GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode *mode = glfwGetVideoMode(monitor);
     int currentWidth, currentHeight;
     glfwGetFramebufferSize(window, &currentWidth, &currentHeight);
 

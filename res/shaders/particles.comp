@@ -26,7 +26,8 @@ uniform float particleRadius;
 uniform ivec2 display;
 uniform int particleCount;
 uniform float friction;
-uniform float gravityRadius;
+uniform float gravityRadiusOuter;
+uniform float gravityRadiusInner;
 uniform float forceMultiplier;
 uniform int maxTypeCount;
 
@@ -39,11 +40,16 @@ void main() {
 
   for (int i = 0; i < particleCount; i++) {
     float dist = distance(positionsIn[i], positionsIn[id]);
-    if (dist == 0 || dist >= gravityRadius || i == id) continue;
+    if (dist == 0 || dist >= gravityRadiusOuter || i == id) continue;
 
     float force = forces[typeIds[id] * maxTypeCount + typeIds[i]];
     vec2 forceVector = normalize(positionsIn[i] - positionsIn[id]);
-    forceVector *= force * forceMultiplier * smoothstep(gravityRadius, gravityRadius / 100, dist);
+    
+    if (dist <= gravityRadiusInner)
+      forceVector *= -smoothstep(-gravityRadiusInner, 0.0, -dist) * forceMultiplier;
+    else
+      forceVector *= force * forceMultiplier * smoothstep(gravityRadiusInner, gravityRadiusOuter, gravityRadiusOuter - dist);
+    
     finalForce += forceVector;
   }
 

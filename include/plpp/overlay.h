@@ -24,13 +24,19 @@ namespace PLPP
   private:
     GLFWwindow *window;
     PhysicsEngine &physicsEngine_;
-    
+
+    int typeCount_ = 1;
+    int currentResolution_ = 0;
+    int currentDisplayMode_ = 0;
+    bool vsync_;
 
     void showMainMenuBar();
     void showSettingsAndConfigsMenu();
 
     void configurationMenu();
     void settingsMenu();
+
+    void drawCircle(int particleId);
   };
 }
 

@@ -1,6 +1,7 @@
 {
   "name": "particle-life-plus-plus",
   "version": "0.1.0",
+  "builtin-baseline": "d76af7ca27ab080aa46a142bcf9c2d13a2854d58",
   "dependencies": [
     {
       "name": "imgui",

@@ -23,7 +23,8 @@ namespace PLPP
     float friction = 0.7f;
     float particleRadius = 5.0f;
     float forceMultiplier = 10.0f;
-    float effectiveForceRadius = 50.0f;
+    float gravityRadiusOuter = 50.0f;
+    float gravityRadiusInner = 5.0f;
 
     std::vector<glm::vec4> colors;
     std::vector<glm::vec4> particleColors = std::vector<glm::vec4>(MAXIMUM_PARTICLE_TYPES, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
