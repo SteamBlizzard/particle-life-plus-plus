@@ -7,6 +7,8 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <format>
+#include <filesystem>
 
 namespace PLPP
 {
@@ -34,50 +36,39 @@ namespace PLPP
 
   Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *fShaderFile)
   {
-    // 1. retrieve the vertex/fragment source code from filePath
-    std::string vertexCode;
-    std::string fragmentCode;
-    try
-    {
-      // open files
-      std::ifstream vertexShaderFile(vShaderFile);
-      std::ifstream fragmentShaderFile(fShaderFile);
-      std::stringstream vShaderStream, fShaderStream;
-      // read file's buffer contents into streams
-      vShaderStream << vertexShaderFile.rdbuf();
-      fShaderStream << fragmentShaderFile.rdbuf();
-      // close file handlers
-      vertexShaderFile.close();
-      fragmentShaderFile.close();
-      // convert stream into string
-      vertexCode = vShaderStream.str();
-      fragmentCode = fShaderStream.str();
-    }
-    catch (std::exception e)
-    {
-      std::cerr << "ERROR::SHADER: Failed to read shader files" << std::endl;
-    }
+    std::ifstream vertexShaderFile(vShaderFile);
+    std::ifstream fragmentShaderFile(fShaderFile);
+    if (!vertexShaderFile)
+        std::cout << std::format("Vertex shader not found at location {}", std::filesystem::current_path().append(vShaderFile).string()) << std::endl;
+    if (!fragmentShaderFile)
+        std::cout << std::format("Fragment shader not found at location {}", std::filesystem::current_path().append(fShaderFile).string()) << std::endl;
+
+    std::stringstream vShaderStream, fShaderStream;
+    vShaderStream << vertexShaderFile.rdbuf();
+    fShaderStream << fragmentShaderFile.rdbuf();
+    vertexShaderFile.close();
+    fragmentShaderFile.close();
+
+    std::string vertexCode(vShaderStream.str());
+    std::string fragmentCode(fShaderStream.str());
+
     const char *vShaderCode = vertexCode.c_str();
     const char *fShaderCode = fragmentCode.c_str();
-
     return Shader(vShaderCode, fShaderCode);
   }
 
   Shader ResourceManager::loadShaderFromFile(const char *cShaderFile)
   {
-    std::string computeCode;
-    try
-    {
-      std::ifstream computeShaderFile(cShaderFile);
-      std::stringstream cShaderStream;
-      cShaderStream << computeShaderFile.rdbuf();
-      computeShaderFile.close();
-      computeCode = cShaderStream.str();
-    }
-    catch (std::exception e)
-    {
-      std::cerr << "ERROR::RESOURCE_MANAGER::SHADER: Failed to read shader files" << std::endl;
-    }
+    std::ifstream computeShaderFile(cShaderFile);
+
+    if (!computeShaderFile)
+        std::cout << std::format("Compute shader not found at location {}", std::filesystem::current_path().append(cShaderFile).string()) << std::endl;
+
+    std::stringstream cShaderStream;
+    cShaderStream << computeShaderFile.rdbuf();
+    computeShaderFile.close();
+    std::string computeCode(cShaderStream.str());
+
     const char *cShaderCode = computeCode.c_str();
     return Shader(cShaderCode);
   }

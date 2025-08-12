@@ -12,7 +12,7 @@ This project is my first attempt at using & learning graphics APIs outside of ga
 ### Prerequisites
 * gcc/g++
 * [vcpkg](https://github.com/microsoft/vcpkg)
-* [CMake](https://cmake.org/)
+* [CMake](https://cmake.org/) < 4.0.0
 
 ### Steps
 1. Ensure you've properly configured `vcpkg`
@@ -20,8 +20,8 @@ This project is my first attempt at using & learning graphics APIs outside of ga
     - Set `VCPKG_ROOT` environment variable to the path of vcpkg
 2. From the ParticleLife++ root directory, run: `cmake --preset release; cmake --build --preset release`
 3. Run the program from the project root:
-    - Windows: `./build/bin/release/pl++`
-    - Mac/Linux: `.\build\bin\release\pl++.exe`
+    - Mac/Linux: `./build/bin/release/pl++`
+    - Windows: `.\build\bin\release\pl++.exe`
 
 ## Credits & Resources
 * [Particle Life](https://github.com/tom-mohr/particle-life-app)
