@@ -48,7 +48,7 @@ void main() {
     if (dist <= gravityRadiusInner)
       forceVector *= -smoothstep(-gravityRadiusInner, 0.0, -dist) * forceMultiplier;
     else
-      forceVector *= force * forceMultiplier * smoothstep(gravityRadiusInner, gravityRadiusOuter, gravityRadiusOuter - dist);
+      forceVector *= force * forceMultiplier * smoothstep(gravityRadiusInner, gravityRadiusOuter, gravityRadiusOuter - dist + gravityRadiusInner);
     
     finalForce += forceVector;
   }

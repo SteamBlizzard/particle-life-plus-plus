@@ -15,24 +15,24 @@ namespace PLPP
   Shader::Shader(const char *vertexSource, const char *fragmentSource)
   {
     unsigned int sVertex, sFragment;
-    // vertex Shader
+
     sVertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(sVertex, 1, &vertexSource, NULL);
     glCompileShader(sVertex);
     checkCompileErrors(sVertex, "VERTEX");
-    // fragment Shader
+
     sFragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(sFragment, 1, &fragmentSource, NULL);
     glCompileShader(sFragment);
     checkCompileErrors(sFragment, "FRAGMENT");
-    // shader program
+
     this->ID = glCreateProgram();
     glAttachShader(this->ID, sVertex);
     glAttachShader(this->ID, sFragment);
     
     glLinkProgram(this->ID);
     checkCompileErrors(this->ID, "PROGRAM");
-    // delete the shaders as they're linked into our program now and no longer necessary
+
     glDeleteShader(sVertex);
     glDeleteShader(sFragment);
     
@@ -90,14 +90,12 @@ namespace PLPP
 
     SetFloat("radius", radius);
 
-    // Bind the VAO and draw the quad
     glBindVertexArray(quadVAO_);
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, particleCount);
-    // Unbind the VAO
+
     glBindVertexArray(0);
   }
 
-  // Only available for compute shaders
   void Shader::Dispatch(int groups)
   {
     if (type_ != ShaderType::Compute)
