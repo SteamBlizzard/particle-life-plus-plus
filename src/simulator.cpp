@@ -174,7 +174,7 @@ namespace PLPP
   {
     int displayWidth, displayHeight;
     glfwGetFramebufferSize(window_, &displayWidth, &displayHeight);
-
+    
     if (ImGui::IsKeyPressed(ImGuiKey_Escape))
       glfwSetWindowShouldClose(window_, true);
     

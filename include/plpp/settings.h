@@ -8,6 +8,7 @@
 // C++ Standard Library
 #include <array>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -27,10 +28,11 @@ namespace PLPP
         std::pair<int, int>(2560, 1600),
         std::pair<int, int>(3840, 2160)};
 
-    static constexpr std::array<std::string, 3> DISPLAY_MODES = {
+    inline static const std::array<std::string, 3> DISPLAY_MODES = {
         "Windowed",
         "Borderless",
-        "Fullscreen"};
+        "Fullscreen"
+    };
 
     inline static bool vsync = false;
 

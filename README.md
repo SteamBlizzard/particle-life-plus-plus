@@ -10,7 +10,7 @@ This project is my first attempt at using & learning graphics APIs outside of ga
 
 ## Installation & Usage
 ### Prerequisites
-* gcc/g++
+* C++ compiler (e.g. `cl.exe` for Windows, `g++` for Linux/Mac)
 * [vcpkg](https://github.com/microsoft/vcpkg)
 * [CMake](https://cmake.org/) < 4.0.0
 

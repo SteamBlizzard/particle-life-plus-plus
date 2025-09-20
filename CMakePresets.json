@@ -7,47 +7,47 @@
   },
   "configurePresets": [
     {
-      "name": "release",
-      "displayName": "MSYS2 UCRT64 Release (with vcpkg)",
-      "generator": "MinGW Makefiles",
+      "name": "windows-release-x64",
+      "displayName": "Windows x64 Release",
+      "generator": "Visual Studio 17 2022",
       "description": "Build with UCRT64 and vcpkg manifest mode",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_CXX_FLAGS": "-Wall -Wextra",
-        "CMAKE_CXX_FLAGS_DEBUG": "-g",
+        "CMAKE_CXX_FLAGS": "-Wall -W4",
         "CMAKE_CXX_FLAGS_RELEASE": "-O3",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_TARGET_TRIPLET": "x64-mingw-static",
-        "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
-        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/release"
       }
     },
     {
-      "name": "debug",
-      "displayName": "MSYS2 UCRT64 with Debugging Symbols (with vcpkg)",
-      "generator": "MinGW Makefiles",
+      "name": "windows-debug-x64",
+      "displayName": "Windows x64 Debug",
+      "generator": "Visual Studio 17 2022",
       "description": "Build with UCRT64 and vcpkg manifest mode",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wall -W4",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_TARGET_TRIPLET": "x64-mingw-static",
-        "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/gcc.exe",
-        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/g++.exe",
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/build/bin/debug"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "release",
-      "configurePreset": "release"
+      "name": "Windows Release x64",
+      "configurePreset": "windows-release-x64"
     },
     {
-      "name": "debug",
-      "configurePreset": "debug"
+      "name": "Windows Debug x64",
+      "configurePreset": "windows-debug-x64"
     }
   ]
 }
